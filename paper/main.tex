@@ -1,0 +1,28 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype,amsmath,amssymb}
+\usepackage[left=24mm,right=24mm,top=23mm,bottom=22mm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt plus 1pt minus 1pt}
+\newcommand{\head}[1]{\section*{#1}}
+\newcommand{\para}[1]{\par\textbf{#1.}\ }
+\newcommand{\thm}[1]{\texttt{\small #1}}
+\newcommand{\red}{\longrightarrow}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\NF}{\operatorname{NF}}
+\hypersetup{pdftitle={Two scans in pure S},pdfauthor={Markus Baumann}}
+\begin{document}
+{\LARGE\bfseries Two scans in pure S}\par
+{\large An output construction under parallel innermost reduction}\par
+{\normalsize Markus Baumann}\par
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/background}
+\newpage
+\input{sections/methodology}
+\newpage
+\input{sections/evaluation}
+\input{sections/conclusion}
+\input{sections/experimental-section}
+\input{sections/related-work}
+\end{document}

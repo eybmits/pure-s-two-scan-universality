@@ -1,0 +1,37 @@
+name: Verify proof
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      LEAN_NUM_THREADS: 2
+      MATHLIB_NO_CACHE_ON_UPDATE: 1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee # v1
+        with:
+          auto-config: false
+          use-mathlib-cache: false
+          use-github-cache: false
+      - name: Fetch the pinned Mathlib imports
+        run: >
+          lake exe cache get
+          Mathlib.Computability.Halting
+          Mathlib.Computability.PartrecCode
+          Mathlib.Computability.Reduce
+          Mathlib.Computability.StateTransition
+          Mathlib.Computability.TuringMachine.PostTuringMachine
+          Mathlib.Computability.TuringMachine.ToPartrec
+          Mathlib.Data.Fintype.EquivFin
+      - name: Rebuild and replay the release proofs
+        run: lake env python3 verify.py --fresh
+      - name: Check the theorem exports with Nanoda
+        run: python3 check_external.py

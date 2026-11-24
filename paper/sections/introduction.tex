@@ -1,0 +1,9 @@
+\head{1. The theorem and the generator}
+A ground term is a binary tree with sole leaf $S$. Application associates to the left. A round $\pi$ contracts every innermost occurrence of $Sxyz\red(xz)(yz)$ simultaneously.
+\para{Theorem}
+There are a fixed encoder $e$ and decoder $D$ such that for every partial computable function $f$ on binary strings some program string $p$ satisfies, for all strings $x,y$,
+\[
+     f(x)\downarrow=y \quad\Longleftrightarrow\quad
+     \exists n\geq 0\quad D\bigl(\pi^n(e(p,x))\bigr)=\operatorname{some}(y).
+\]
+The seed has $O(1+|p|+|x|)$ leaves. A finite bottom-up tree automaton detects success. More generally, for each regular language $R$ of outputs, the raw trees reporting a string in $R$ form a regular tree language. Thus the statement covers divergence, the empty output, and every time a result is observed.
