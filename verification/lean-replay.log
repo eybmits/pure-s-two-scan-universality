@@ -1,0 +1,180 @@
+Lean (version 4.35.0, arm64-apple-darwin24.6.0, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)
+Mathlib 56a005855ea17e0b0958f73ec801ae140b0a1679
+Building Anchors
+Building UniversalPost
+Building WordBlocks
+Building TapeDecoder
+Building Tableau
+Building Frames
+Building ShellAutomata
+Building Tags
+Building TrackLayout
+Building StringCoding
+Building TableauSites
+Building FramesBridge
+Building Generation
+Building Serial
+Building SupportedPost
+Building WordRead
+Building TableauMachine
+Building Scan
+Building Live
+Building ClockProgress
+Building SerialReadout
+Building FiniteUniversalPost
+Building TableauIO
+Building ShellWordAutomata
+Building ObserverScan
+Building Shell
+Building FoldedTape
+Building TableauTracks
+Building ShellLanguages
+Building ObserverRoute
+Building ShellOutput
+Building SweepClock
+Building FoldedRun
+Building ShellStatic
+Building TableauTrackIO
+Building ShellBlockLanguage
+Building ObserverPacket
+Building ShellSelect
+Building SerialTrace
+Building BinaryInput
+Building RowTapeRead
+Building ObserverFinite
+Building OrbitReads
+Building ShellSelectedRead
+Building RowFinite
+Building ObserverControl
+Building NativeAlignment
+Building ObserverBlocks
+Building BlockWire
+Building ObserverClass
+Building ObserverProtocol
+Building HeaderBlocks
+Building PayloadBits
+Building TableauInput
+Building FiniteCodes
+Building ObserverGate
+Building OutputStream
+Building RawColors
+Building ShellPayload
+Building MachineAlphabet
+Building JoinGate
+Building InitialRowCode
+Building TableauInitialDFA
+Building TableauCandidate
+Building TableauOrbit
+Building TableauEndToEnd
+Building ShellAnyInput
+Building TableauExamples
+Building ShellAnyTape
+Building ShellOutputPreimage
+Building TraceReadout
+TwoScans.TraceReadout.regular_detection axioms: Classical.choice, Quot.sound, propext
+Building UniversalS
+Building TraceSelect
+TwoScans.TraceSelect.readAt_sound axioms: Classical.choice, Quot.sound, propext
+TwoScans.TraceSelect.readAt_cofinal axioms: Classical.choice, Quot.sound, propext
+Building OrbitHardness
+TwoScans.OrbitHardness.complete_indexed axioms: Classical.choice, Quot.sound, propext
+Building OutputPreimage
+Building Prize
+Building ReadPostBound
+Building Chronology
+TwoScans.Chronology.trajectory axioms: Classical.choice, Quot.sound, propext
+TwoScans.Chronology.linear_seed axioms: Quot.sound, propext
+Building SerialOutput
+TwoScans.Prize.serial_universal_strings axioms: Classical.choice, Quot.sound, propext
+Building Certified
+TwoScans.Certified.universality axioms: Classical.choice, Quot.sound, propext
+Building Majority
+TwoScans.Majority.universal_strings axioms: Classical.choice, Quot.sound, propext
+Kernel replay Anchors
+Kernel replay UniversalPost
+Kernel replay WordBlocks
+Kernel replay TapeDecoder
+Kernel replay Tableau
+Kernel replay Frames
+Kernel replay ShellAutomata
+Kernel replay Tags
+Kernel replay TrackLayout
+Kernel replay StringCoding
+Kernel replay TableauSites
+Kernel replay FramesBridge
+Kernel replay Generation
+Kernel replay Serial
+Kernel replay SupportedPost
+Kernel replay WordRead
+Kernel replay TableauMachine
+Kernel replay Scan
+Kernel replay Live
+Kernel replay ClockProgress
+Kernel replay SerialReadout
+Kernel replay FiniteUniversalPost
+Kernel replay TableauIO
+Kernel replay ShellWordAutomata
+Kernel replay ObserverScan
+Kernel replay Shell
+Kernel replay FoldedTape
+Kernel replay TableauTracks
+Kernel replay ShellLanguages
+Kernel replay ObserverRoute
+Kernel replay ShellOutput
+Kernel replay SweepClock
+Kernel replay FoldedRun
+Kernel replay ShellStatic
+Kernel replay TableauTrackIO
+Kernel replay ShellBlockLanguage
+Kernel replay ObserverPacket
+Kernel replay ShellSelect
+Kernel replay SerialTrace
+Kernel replay BinaryInput
+Kernel replay RowTapeRead
+Kernel replay ObserverFinite
+Kernel replay OrbitReads
+Kernel replay ShellSelectedRead
+Kernel replay RowFinite
+Kernel replay ObserverControl
+Kernel replay NativeAlignment
+Kernel replay ObserverBlocks
+Kernel replay BlockWire
+Kernel replay ObserverClass
+Kernel replay ObserverProtocol
+Kernel replay HeaderBlocks
+Kernel replay PayloadBits
+Kernel replay TableauInput
+Kernel replay FiniteCodes
+Kernel replay ObserverGate
+Kernel replay OutputStream
+Kernel replay RawColors
+Kernel replay ShellPayload
+Kernel replay MachineAlphabet
+Kernel replay JoinGate
+Kernel replay InitialRowCode
+Kernel replay TableauInitialDFA
+Kernel replay TableauCandidate
+Kernel replay TableauOrbit
+Kernel replay TableauEndToEnd
+Kernel replay ShellAnyInput
+Kernel replay TableauExamples
+Kernel replay ShellAnyTape
+Kernel replay ShellOutputPreimage
+Kernel replay TraceReadout
+Kernel replay UniversalS
+Kernel replay TraceSelect
+Kernel replay OrbitHardness
+Kernel replay OutputPreimage
+Kernel replay Prize
+Kernel replay ReadPostBound
+Kernel replay Chronology
+Kernel replay SerialOutput
+Kernel replay Certified
+Kernel replay Majority
+Fresh transitive kernel replay of Certified.
+replaying Certified with --fresh
+Fresh transitive kernel replay of Chronology.
+replaying Chronology with --fresh
+Fresh transitive kernel replay of Majority.
+replaying Majority with --fresh
+PASS: 81 source modules compiled and replayed; 9 endpoints checked.

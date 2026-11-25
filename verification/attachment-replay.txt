@@ -1,0 +1,16 @@
+Independent replays of the archived source bundle
+
+Archive: paper/pure-s-lean-proof.zip
+SHA-256: 73ec23d763a91dd7744e8c95466538c502b645afa74069a979000c27c8863f62
+
+The exact ZIP was extracted into three new directories. Each started with
+an empty project build directory and reused only the pinned external
+dependency cache. The following checks used distinct extracted copies:
+    lake --quiet build && lake env lean verification/Endpoints.lean
+    lake env python3 verify.py --fresh --examples
+    python3 check_external.py
+The first built the project and printed nine exact types and axioms.
+The second rebuilt and replayed 81 local modules and completed six
+examples. The third performed a fresh Lake build and Nanoda accepted
+the nine exported theorems. All commands exited with status zero. The
+type, kernel, demo, and Nanoda transcripts matched these final runs byte for byte.

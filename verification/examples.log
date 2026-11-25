@@ -1,0 +1,240 @@
+Running pure_s_replay.py
+{
+  "tiny_masked_tableaus": 6,
+  "tiny_tableau_states": 1781,
+  "tiny_positive_ages": [
+    292,
+    294
+  ],
+  "scanner_words": 254,
+  "scanner_states": 6618,
+  "mirror_cases": 9,
+  "mirror_states": 1236,
+  "mirrored_pairs": 56,
+  "tag_seed_cases": 4,
+  "tag_states": 104,
+  "sampled_shells": 316,
+  "generator_leaves": 64
+}
+Running pure_s_output.py
+{
+  "block_width": 19,
+  "mask_length": 38416,
+  "examples": 17,
+  "negative_checks": 339,
+  "cases": [
+    {
+      "input": "",
+      "output": "",
+      "rows": 2,
+      "width": 6,
+      "tiles": 12,
+      "wrappers": 39063
+    },
+    {
+      "input": "0",
+      "output": "1",
+      "rows": 3,
+      "width": 7,
+      "tiles": 21,
+      "wrappers": 39424
+    },
+    {
+      "input": "1",
+      "output": "0",
+      "rows": 3,
+      "width": 7,
+      "tiles": 21,
+      "wrappers": 39424
+    },
+    {
+      "input": "00",
+      "output": "11",
+      "rows": 4,
+      "width": 8,
+      "tiles": 32,
+      "wrappers": 39861
+    },
+    {
+      "input": "01",
+      "output": "10",
+      "rows": 4,
+      "width": 8,
+      "tiles": 32,
+      "wrappers": 39861
+    },
+    {
+      "input": "10",
+      "output": "01",
+      "rows": 4,
+      "width": 8,
+      "tiles": 32,
+      "wrappers": 39861
+    },
+    {
+      "input": "11",
+      "output": "00",
+      "rows": 4,
+      "width": 8,
+      "tiles": 32,
+      "wrappers": 39861
+    },
+    {
+      "input": "000",
+      "output": "111",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "001",
+      "output": "110",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "010",
+      "output": "101",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "011",
+      "output": "100",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "100",
+      "output": "011",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "101",
+      "output": "010",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "110",
+      "output": "001",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "111",
+      "output": "000",
+      "rows": 5,
+      "width": 9,
+      "tiles": 45,
+      "wrappers": 40374
+    },
+    {
+      "input": "1001",
+      "output": "0110",
+      "rows": 6,
+      "width": 10,
+      "tiles": 60,
+      "wrappers": 40963
+    },
+    {
+      "input": "00101",
+      "output": "11010",
+      "rows": 7,
+      "width": 11,
+      "tiles": 77,
+      "wrappers": 41628
+    }
+  ]
+}
+Running pure_s_reference.py
+{
+  "sparse_quads": 21,
+  "block_width": 8,
+  "genuine_suffix_launch_round": 4,
+  "raw_Qp_sample_ages": [
+    665,
+    554,
+    664,
+    665
+  ],
+  "decoded": [
+    "1",
+    "",
+    null,
+    null
+  ],
+  "combined_trees": 5,
+  "sparse_generated_DAG_nodes": 544597,
+  "dense_mask_bits": 38416,
+  "dense_encoded_seed_DAG_nodes": 38598,
+  "compiled_tm": {
+    "colors": 19,
+    "allowed_quads": 3179,
+    "dense_mask_bits": 130321,
+    "seed_nodes": 130490,
+    "native_TM_instructions": 3
+  }
+}
+Running pure_s_guided.py
+{
+  "short_whole_tree_crosscheck": {
+    "whole_global_rounds": 37,
+    "designated_occurrences": 30
+  },
+  "guided_input_runs": [
+    {
+      "input": "",
+      "decoded_output": "",
+      "initial_suffix_letters": 53,
+      "candidate_letters": 214,
+      "actual_renewals": 161,
+      "Qp_birth_global_round": 53367,
+      "isolated_Qp_age": 554,
+      "certified_subtree_global_round": 53921,
+      "normal_frame_instances": 21574,
+      "native_descent_edges": 21574
+    },
+    {
+      "input": "0",
+      "decoded_output": "1",
+      "initial_suffix_letters": 61,
+      "candidate_letters": 254,
+      "actual_renewals": 193,
+      "Qp_birth_global_round": 75775,
+      "isolated_Qp_age": 665,
+      "certified_subtree_global_round": 76440,
+      "normal_frame_instances": 30494,
+      "native_descent_edges": 30494
+    }
+  ]
+}
+Running pure_s_prefix.py
+{
+  "accepted_prefixes": 39,
+  "singleton_prefixes": 5,
+  "rejected_cases": 229,
+  "longest_steps": 12,
+  "largest_wrapper_word": 48240
+}
+Running pure_s_two_cell.py
+valid: round 364 | static=pass | fast=pass | delayed=pass
+  row 0: R0 1
+  row 1: 1 H1
+  output tape: 11
+forged: round 362 | static=pass | fast=pass | delayed=fail
+  rejected

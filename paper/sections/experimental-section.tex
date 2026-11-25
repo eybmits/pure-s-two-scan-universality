@@ -1,3 +1,17 @@
-\para{Formal proof}
-\thm{TwoScans.Certified.universality} ties this encoder and readout to Mathlib's definition of partial recursiveness. As a corollary, reachability of one fixed regular detector on the program--input seed family is recursively enumerable complete under computable many-one reductions. Rebuild instructions and Lean sources are in the public repository.\par
-{\small\url{https://github.com/eybmits/pure-s-two-scan-universality}}
+\papersection{Reading a run in order}\label{sec:chronology}
+What can the tree reveal about a computation that never halts? Fix a deterministic machine with one semi-infinite tape and absorbing halts. Write $C_i$ for its configuration after $i$ steps, omitting the right boundary marker and trailing blanks beyond the head. Choosing the universal machine of Section~\ref{sec:history} fixes one reader for every program and input.
+
+\lead{Finite prefixes in parallel rounds}
+Allow any head state in the final row. A fixed finite tree automaton detects whether the tree contains a passing packet. Each such packet gives the true rows through its final step. For any $h$ and round bound $B$, pad a tableau through $C_h$ until its word is larger than every tree through round $B$. The generator eventually produces this packet, necessarily after $B$. Reading a passing packet with the most rows (first in preorder on ties) therefore recovers $C_0,\ldots,C_h$ together, even on a nonhalting run.
+
+\begin{samepage}\begin{corollary}[Chronological readout]\label{cor:chronology}
+Freeze each round's initial innermost redexes and contract them from left to right. A linear-size seed and a fixed reader of the current tree give $(i,C_i)$ at times $0=t_0<t_1<\cdots$. Every reported pair is correct for its index. The increasing times select one observation per index.
+\end{corollary}\end{samepage}
+
+The reader compares unbounded row counts and counts differing clock sites, operations beyond the finite-state detector. The seed pairs the data and literal initial row with two copies of the empty-suffix generator. During the first copy's sweep the second copy and data stand still. After $i+1$ contractions the copies differ at $i+1$ original redex sites, directing the reader to row $i$ of a longest passing packet. While the second copy advances, the data still form a round snapshot. While the data advance, equal clocks give $(0,C_0)$. Each renewal leaves another disjoint active subtree, so every sufficiently late sweep has more than $i$ sites. Arbitrarily late snapshots cover $i$. Taking the first subsequent report of each next index recovers the run online.
+
+\papersection{Formal verification}
+Lean~4.35.0 and Nanoda~0.4.19 checked all nine exported theorems. Two copies suffice when the reader stops at the first detection. After each contraction a finite tree automaton tests whether both copies pass. At the first hit the decoder returns the output of the left copy (\decl{Prize.serial_universal_strings}). With three copies, every later report is correct as well (Corollary~\ref{cor:majority}). The proof of Theorem~\ref{thm:main} uses exactly \decl{propext}, \decl{Classical.choice} and \decl{Quot.sound}. The export admits only these three axioms. Lean checks the seed and output sizes, regularity, and structural traversal bounds. \decl{Select.linear_selection} bounds the packet search and \decl{AnyTape.streamed_report} identifies its result with the streamed readout. Section~\ref{sec:comparison} counts the passes to obtain the running times.
+
+The embedded and standalone copies of \texttt{pure-s-lean-proof.zip} are identical. Start with \decl{TCB_AUDIT.md} for definitions, theorem statements and replay commands. \decl{formal/Certified.lean} contains Theorem~\ref{thm:main}. The two-cell Python example exercises the scans on a prepared packet.
+\par\smallskip\noindent\begin{minipage}{\columnwidth}\small \emph{Acknowledgment.} I directed the research. OpenAI Codex assisted extensively with proof development, Lean formalization and drafting the manuscript.\end{minipage}

@@ -1,21 +1,17 @@
-\head{2. What each scan reads}
-Fix a single packet with immutable payload $p=[w]$. Put $q=Sp$, $v=qq$ and now let $r(z)=\NF(zq)$. After $3+\#A(w)+2\#B(w)$ rounds the right child becomes $r(p)v$. Measure its age $t$ from this point. Direct S contractions give
+\lead{The scan delay}
+For $u=\wrap{w}$ let $q=Su$, $v=qq$, and let $r(z)$ be the normal form of $zq$ for a wrapped suffix $z$ of $u$. After $3+\#_A(w)+2\#_B(w)$ rounds of preparation the scan is $r(u)v$. Its two routes follow from
 \[
+\mathcopy{r(Az)v \unichar{8594} (qv)(r(z)v),\unichar{10}r(Bz)v \unichar{8594} (r(z)v)((q r(z))v),\unichar{10}(q r(z))v \unichar{8594} (uv)(r(z)v),\unichar{10}r(Sg)v \unichar{8594} (gv)(qv).}{%
 \begin{aligned}
- r(Az)v&\red(qv)(r(z)v),\qquad &r(Bz)v&\red(r(z)v)((q\,r(z))v),\\
- (q\,r(z))v&\red(pv)(r(z)v), &r(Sg)v&\red(gv)(qv).
-\end{aligned}
+ r(Az)v      &\step (qv)(r(z)v),\\
+ r(Bz)v      &\step (r(z)v)((q\,r(z))v),\\
+ (q\,r(z))v  &\step (uv)(r(z)v),\\
+ r(Sg)v      &\step (gv)(qv).
+\end{aligned}}
 \]
-An $A$ exposes one continuation after one round. A $B$ exposes a fast continuation on the left after one round, a second continuation on the right after two, and a fresh scanner $pv$ beside it. Each continuation stays active through its descent to $gv$. The observer distinguishes $A$ by its normal left and active right child, and $B$ by two active children. For $B$ it waits until the right child's right operand is active, certifying the second split. Preparation and the base both have a normal right operand. Consequently a probe at letter index $i$, with $d$ earlier delayed choices, has scan age $t-i-d-2$.
-\para{Reading a position}
-$(Ay)v\red Sv(yv)$ and $(By)v\red(Av)(yv)$. Each round peels one letter. The reader descends the right frame spine. A valid operand has shape $(S[w_1])(S[w_2])$, with independent words. In this scanner, any matching operand equals the original $v$. Each newly created application has $v$ inside its right child, whereas $S[w_2]$ cannot contain $v$ by its wrapper shape and the size of the base. At exhaustion the base $(Sg)v$ is normal. Every remaining nonnormal application then has a right child larger than $v$. Contractions preserve this bound because they duplicate their third operand and never decrease size. Thus all later reads fail. The native read returns $[w_{j:}]$ exactly at ages $0\leq j<|w|$. The same age $t$ governs every probe in a packet.
-\para{Two simultaneous lookups}
-Choose an injective fixed-width block code over $A,B$ for a finite alphabet of record labels. Each block has length $s>1$, starts with $A$ and ends in its probe $B$. The immutable word has regular format
-\[
- B^{sw}A\;[U_b][u_1]\cdots[u_n][U_e][V_e][v_m]\cdots[v_1][V_b]F .
-\]
-Here $w>0$ is a proposed row width, $F$ is the empty footer in our construction, and the four boundary labels are distinct. The $u$ and $v$ labels use disjoint alphabets. Let $h=sw+1$, $i_k=h+(k+1)s-1$ and $b=h+(n+m+3)s$, the start of $[V_b]$. The fast probe of $U_b$ must see the exact suffix $[V_b]F$. Its fixed length forces $t=i_0+2+b$. The fast probe at $U_e$ must see $V_e$. Its read starts at $h+(m+2)s$, while $[V_e]$ starts at $h+(n+2)s$, so $m=n$. The fast probe of site $k$ now reads block $v_k$.
-The second route delays at every header $B$ and takes fast continuations thereafter. Its read starts at $b-(k+w)s$ and hence sees $v_{k+w}$ whenever $k+w\le n$. Beyond the color track it can see only a boundary, a $U$ block or header bits. Aligned header blocks begin with $B$. The single delimiter is off the alignment by one. For a genuine rectangle every required scan is already present. Even at $U_e$ the delayed age is $1+(n+2)s>0$.
+At $B$ the direct continuation is the left child after one round. In the next round it advances, while the right child splits into the fresh scanner $uv$ on the left and the delayed continuation $r(z)v$ on the right. The scanner peels one wrapper per round, since $(Az)v\step Sv(zv)$ and $(Bz)v\step(Av)(zv)$. At a probe letter $B$ in zero-based position $i$, the scanner is born at $i+d+2$, with $d$ earlier long continuations and time measured from the end of preparation. At $A$ the left marker is normal and the right continuation is active. Shape and normality are finite-state tests.
 
-\para{Observing one contraction at a time}
-A fixed serial order gives the same answer at the first hit. Put two copies of the seed $e$ in the term $S\,e\,e$. In each sweep, visit the innermost redexes present at its start from left to right. The detector requires both copies to pass and reads the left copy. At a sweep boundary the copies are equal. If they both fail there, the right copy stays at that failing boundary until the left finishes. During the rest of the sweep the left copy stays at the new boundary. Hence the first joint hit always reads a genuine parallel boundary. Conversely, every passing boundary appears with two passing copies. This argument uses only a finite conjunction and the fixed sweep order.
+\lead{Exact read position}
+The finite reader follows the right branches of the peeled wrappers. It tests for an operand of shape $(S\wrap{w_1})(S\wrap{w_2})$ without comparing $w_1$ and $w_2$. In this scan every match equals $v$. A new application contains $v$ in its right child, which the shape $S\wrap{w_2}$ excludes. Let $j=t-i-d-2$ be the scanner's age. A probe reads the suffix beginning at $j$ exactly when $0\leq j<|w|$.
+
+Every candidate word on an encoded machine orbit ends in the input suffix $\sigma$, whose final block $[V_b]$ ends in $B$. After this last wrapper peels, set $h=(Sg)v$. The innermost frame takes the step $(Av)h\step(Sh)(vh)$. The general exhaustion argument works for any last letter and for the empty word. Once all wrappers have peeled, $h$ is normal and every remaining redex has a right operand larger than $v$. Contractions preserve this bound, so the reader can never again match an active site with operand $v$.

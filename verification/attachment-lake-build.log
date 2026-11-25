@@ -1,0 +1,20 @@
+⚠ [920/989] Built UniversalPost (4.6s)
+warning: formal/UniversalPost.lean: imports `Mathlib.Computability.Halting` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: formal/UniversalPost.lean: imports `Mathlib.Computability.TuringMachine.ToPartrec` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [921/989] Built TapeDecoder (4.7s)
+warning: formal/TapeDecoder.lean: imports `Mathlib.Computability.TuringMachine.ToPartrec` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [931/989] Built SupportedPost (5.4s)
+warning: formal/SupportedPost.lean: imports `Mathlib.Computability.TuringMachine.PostTuringMachine` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: formal/SupportedPost.lean: imports `Mathlib.Data.Fintype.EquivFin` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [936/989] Built StringCoding (5.0s)
+warning: formal/StringCoding.lean: imports `Mathlib.Computability.PartrecCode` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [944/989] Built FoldedTape (5.3s)
+warning: formal/FoldedTape.lean: imports `Mathlib.Computability.TuringMachine.PostTuringMachine` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [952/989] Built FoldedRun (2.6s)
+warning: formal/FoldedRun.lean: imports `Mathlib.Computability.StateTransition` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: formal/FoldedRun.lean:57:2: Try this: intro source final ih pos d e
+
+Note: This linter can be disabled with `set_option linter.tacticAnalysis.introMerge false`
+⚠ [984/989] Built OrbitHardness (3.4s)
+warning: formal/OrbitHardness.lean: imports `Mathlib.Computability.Halting` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: formal/OrbitHardness.lean: imports `Mathlib.Computability.Reduce` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file

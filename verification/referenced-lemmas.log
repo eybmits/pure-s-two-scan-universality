@@ -1,0 +1,93 @@
+SerialTableau.parallel_agrees (t : TwoScans.Term) : SerialTableau.parallel t = TwoScans.Frames.pi t
+SerialTableau.sweep_is_single_steps (x : TwoScans.Term) :
+  SerialTableau.Path x (SerialTableau.sweep x) (SerialTableau.parallel x)
+TwoScans.SerialReadout.prefix_path (e : TwoScans.Term) (n : ℕ) :
+  SerialTableau.Path e (TwoScans.SerialReadout.post e n) (TwoScans.Frames.rounds n e)
+TwoScans.SerialReadout.one_is_step {a b : TwoScans.Term} (one : SerialTableau.One a b) : TwoScans.Step a b
+TwoScans.Readback.first_preimage {Y : Type} (read : TwoScans.Term → Option Y) (query : Y → Bool)
+  (anyHit : TwoScans.Automata.Regular fun t => ∃ y, read t = some y)
+  (goodHit : TwoScans.Automata.Regular fun t => ∃ y, read t = some y ∧ query y = true) :
+  TwoScans.Automata.Regular fun t => ∃ y, TwoScans.Shell.first read t = some y ∧ query y = true
+TwoScans.Frames.B_delayed {p r v : TwoScans.Term} (hp : TwoScans.Frames.nf p = true) (hr : TwoScans.Frames.nf r = true)
+  (hv : TwoScans.Frames.nf v = true) :
+  TwoScans.Frames.rounds 2 (TwoScans.Term.s ⋆ r ⋆ (TwoScans.Term.s ⋆ p ⋆ r) ⋆ v) =
+    TwoScans.Frames.pi (r ⋆ v) ⋆ (p ⋆ v ⋆ (r ⋆ v))
+TwoScans.Frames.scannerBirth {g p v : TwoScans.Term} (hg : TwoScans.Frames.nf g = true)
+  (hp : TwoScans.Frames.nf p = true) (hv : TwoScans.Frames.nf v = true) (tail : List Bool)
+  (path : List TwoScans.Frames.Choice) :
+  TwoScans.Occ (p ⋆ v ⋆ (TwoScans.Frames.folded g p tail ⋆ v))
+    (TwoScans.Frames.rounds (TwoScans.Frames.offset path + 2)
+      (TwoScans.Frames.folded g p (TwoScans.Frames.letters path ++ true :: tail) ⋆ v))
+TwoScans.Scan.operandIdentity {g t x : TwoScans.Term} (hg : TwoScans.Frames.nf g = true) (big : 3 ≤ TwoScans.size g)
+  (w : List Bool)
+  (steps :
+    TwoScans.Steps
+      (TwoScans.Frames.word g w ⋆ TwoScans.Scan.operand (TwoScans.Frames.word g w) (TwoScans.Frames.word g w)) t)
+  (o : TwoScans.Occ x t) (ox : TwoScans.Scan.VClass g x) :
+  x = TwoScans.Scan.operand (TwoScans.Frames.word g w) (TwoScans.Frames.word g w)
+TwoScans.Scan.noFalseScanAfterEnd {g f z u : TwoScans.Term} (hg : TwoScans.Frames.nf g = true)
+  (big : 3 ≤ TwoScans.size g) (w : List Bool) (later : ℕ) (oz : TwoScans.Scan.VClass g z)
+  (o :
+    TwoScans.Occ (f ⋆ z)
+      (TwoScans.Frames.rounds later
+        (TwoScans.Frames.rounds w.length
+          (TwoScans.Frames.word g w ⋆ TwoScans.Scan.operand (TwoScans.Frames.word g w) (TwoScans.Frames.word g w))))) :
+  ¬TwoScans.Step (f ⋆ z) u
+TwoScans.Observer.read_exact {g : TwoScans.Term} (hg : TwoScans.Frames.nf g = true) (big : 3 ≤ TwoScans.size g)
+  (w : List Bool) (j : ℕ) :
+  TwoScans.Observer.read g (TwoScans.Frames.rounds j (TwoScans.Frames.word g w ⋆ TwoScans.Observer.probeV g w)) =
+    if j < w.length then some (TwoScans.Frames.word g (List.drop j w)) else none
+TwoScans.Shell.shell_orbit_iff (i w : List Bool) (r : TwoScans.Term) :
+  TwoScans.Generation.Visible (TwoScans.Shell.seed i) (TwoScans.Shell.tag w ⋆ r) ↔
+    ∃ extra age, w = extra ++ i ∧ r = TwoScans.Shell.body w age
+TwoScans.Select.linear_selection {Y : Type} (wp : List Bool → Bool) (bp : TwoScans.Term → Bool) (v : List Bool → Y)
+  (row : TwoScans.Automata.Regular fun t => ∃ w, t = TwoScans.Shell.W w ∧ wp w = true)
+  (route : TwoScans.Automata.Regular fun t => bp t = true) :
+  ∃ Q x a yes,
+    ∀ (t : TwoScans.Term),
+      ((TwoScans.Select.select yes (TwoScans.Select.decorate (TwoScans.Select.marks a yes) t)).bind fun node =>
+            TwoScans.Shell.localReport wp bp v node.erase) =
+          TwoScans.Shell.first (TwoScans.Shell.localReport wp bp v) t ∧
+        TwoScans.Select.decorationCalls t +
+            TwoScans.Select.visits yes (TwoScans.Select.decorate (TwoScans.Select.marks a yes) t) ≤
+          2 * TwoScans.Select.nodeCount t
+TwoScans.AnyTape.streamed_report {Q Γ : Type} [DecidableEq Q] [DecidableEq Γ] [TwoScans.Automata.FinStates Q]
+  [TwoScans.Automata.FinStates Γ] (δ : TwoScans.Tableau.OneTape.Table Q Γ) (blank : Γ) (halt : Q → Bool) :
+  ∃ K x a yes,
+    ∀ (t : TwoScans.Term),
+      ((TwoScans.Select.select yes (TwoScans.Select.decorate (TwoScans.Select.marks a yes) t)).bind fun n =>
+          TwoScans.Select.selectedRead (TwoScans.AnyTape.getRow blank) n.erase) =
+        TwoScans.AnyTape.report δ blank halt t
+TwoScans.OrbitHardness.concrete_indexed :
+  ∃ P fp dp st M,
+    have O := fun t => ∃ out, TwoScans.UniversalS.readPost M t = some out;
+    have ev := TwoScans.OrbitHardness.Hit (TwoScans.UniversalS.encodePost P) O;
+    TwoScans.Automata.Regular O ∧
+      REPred ev ∧
+        ¬ComputablePred ev ∧
+          (∀ (r : ℕ → Prop), REPred r → r ≤₀ ev) ∧
+            ∀ (c : TwoScans.UniversalS.Code) (x : ℕ), ev (c, x) ↔ (Nat.Partrec.Code.eval c x).Dom
+TwoScans.Join.checked_tests {R C : Type} [DecidableEq C] [TwoScans.Automata.FinStates (TwoScans.TrackLayout.Label R C)]
+  (A : TwoScans.WordBlocks.Alphabet (TwoScans.TrackLayout.Label R C)) (wide : 1 < A.width)
+  (starts : ∀ (a : TwoScans.TrackLayout.Label R C), (A.code a).head? = some false)
+  (ends : ∀ (a : TwoScans.TrackLayout.Label R C), ∃ ds, A.code a = ds ++ [true]) (cur : R → C) (next : R → Option C)
+  (foot : List Bool) (us : List R) (vs : List C) (w : ℕ) (hw : 0 < w) :
+  (∃ age,
+      TwoScans.Join.both A cur next foot (TwoScans.Shell.body (TwoScans.PayloadBits.payload A us vs w foot) age) =
+        true) ↔
+    TwoScans.Join.Tests cur next us vs w
+TwoScans.Tableau.all_successors {C : Type} {first last : List C} {after before : List (List C)} {step : List C → List C}
+  {w : ℕ} (split : first :: after = before ++ [last]) (hw : 0 < w)
+  (matchStream : List.drop w (TwoScans.Tableau.pack (first :: after)) = TwoScans.Tableau.pack (List.map step before)) :
+  after = List.map step before
+TwoScans.WordRead.Attr {α V : Type} (f : List α → V) : Prop
+TwoScans.Automata.Regular (P : TwoScans.Term → Prop) : Prop
+TwoScans.Frames.pi : TwoScans.Term → TwoScans.Term
+TwoScans.OrbitHardness.complete_indexed :
+  ∃ E O,
+    TwoScans.Automata.Regular O ∧
+      REPred (TwoScans.OrbitHardness.Hit E O) ∧
+        ¬ComputablePred (TwoScans.OrbitHardness.Hit E O) ∧
+          (∀ (r : ℕ → Prop), REPred r → r ≤₀ TwoScans.OrbitHardness.Hit E O) ∧
+            ∀ (c : TwoScans.UniversalS.Code) (x : ℕ),
+              TwoScans.OrbitHardness.Hit E O (c, x) ↔ (Nat.Partrec.Code.eval c x).Dom

@@ -1,0 +1,14 @@
+nanoda_bin 0.4.19
+Checked 10294 declarations with no errors
+Proof export SHA-256 2b9cbbf8ff25774b034353543e1ea30cbbcbb45a1b05cd5aafe610f995b1a516 (60986138 bytes)
+Certified theorem names:
+  TwoScans.Certified.universality
+  TwoScans.Prize.serial_universal_strings
+  TwoScans.OrbitHardness.complete_indexed
+  TwoScans.TraceReadout.regular_detection
+  TwoScans.TraceSelect.readAt_sound
+  TwoScans.TraceSelect.readAt_cofinal
+  TwoScans.Chronology.trajectory
+  TwoScans.Chronology.linear_seed
+  TwoScans.Majority.universal_strings
+Axiom allow-list: propext, Classical.choice, Quot.sound

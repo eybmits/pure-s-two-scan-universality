@@ -1,40 +1,35 @@
-Two scans in pure S
-Release verification, 24 November 2026 (UTC)
+Universal Computation with the S Combinator under Parallel Innermost Reduction
+Formal verification record · 25 November 2026 (Europe/Berlin)
 
-Environment
-Lean 4.35.0, eb6cafb7290e8bd5f2937522d8d804f58f02bafc
+Lean 4.35.0, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc
 Mathlib 56a005855ea17e0b0958f73ec801ae140b0a1679
-Nanoda 0.4.19, an independent Lean proof checker implemented in Rust
+Nanoda 0.4.19
 
-Checked results
+Lean rebuilt all 81 local modules from source in an empty build directory.
+Lean's kernel replayed each local module. The complete import closure of
+Certified, Chronology and Majority was then replayed separately, each from an
+empty kernel environment. See verification/lean-replay.log.
+
+Nine declarations were checked by both Lean and Nanoda. Lean's named
+axiom reports use only propext, Classical.choice and Quot.sound. The
+linear_seed report contains just propext and Quot.sound.
+
 TwoScans.Certified.universality
 TwoScans.Prize.serial_universal_strings
 TwoScans.OrbitHardness.complete_indexed
+TwoScans.TraceReadout.regular_detection
+TwoScans.TraceSelect.readAt_sound
+TwoScans.TraceSelect.readAt_cofinal
+TwoScans.Chronology.trajectory
+TwoScans.Chronology.linear_seed
+TwoScans.Majority.universal_strings
 
-An isolated rebuild compiled all 73 local Lean modules from source. Lean's
-kernel replayed every local module. A separate clean Lake build supplied
-Certified for a full transitive replay from an empty kernel environment.
-All three theorem axiom reports listed only propext, Classical.choice
-and Quot.sound.
+Nanoda independently checked the proof export and its dependencies. It
+returned all nine declarations and accepted 10,294 declarations with no
+errors. An axiom outside the three-name allowlist is a hard error.
+Proof export size: 60,986,138 bytes
+Proof export SHA-256: 2b9cbbf8ff25774b034353543e1ea30cbbcbb45a1b05cd5aafe610f995b1a516
+See verification/nanoda.log.
 
-Independent proof checking
-Nanoda checked the exported dependency closure of all three theorems and
-returned all three requested theorem names. Its axiom allowlist contained
-only propext, Classical.choice and Quot.sound, with a hard error for any
-other axiom. Result: 10,104 declarations checked with no errors.
-
-The exported proof objects occupied 58,121,113 bytes in the reference run.
-Reference export SHA-256:
-d52a680fe32a5ffc3e257fe2f913b3b9e74a8595c8461b435280417431918f3a
-The scripts rebuild the export locally. The archive contains the proof sources.
-
-Illustrative checks
-All five supplementary Python programs completed. Examples include 6,618
-native scanner states, 17 output fixtures with 339 negative checks, and
-ground-seed prefix cases. These use their own compact block layout.
-TableauExamples.lean also proves echo and divergence on all binary inputs.
-
-Reproduction
-Follow the cache setup in README.md, then run
-    lake env python3 verify.py --fresh --examples
-    python3 check_external.py
+All six supplementary Python programs completed. Their output is in
+verification/examples.log. Reproduction commands are in README.md.

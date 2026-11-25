@@ -1,3 +1,29 @@
-\para{One machine and one readout}
-Fix Mathlib's partial-recursive universal evaluator. Compilation through its stack and tape machines, then restriction to its finite program support, gives one tape table for every $p,x$. To preserve every binary string, including trailing zeros, append a final $1$ before interpreting the string in binary, low bit first. For each $f$, the library supplies a program for this coded function. The seed writes the reversed input and program bits with three fixed tape symbols, then wraps the initial tape in fixed-width blocks.
-A bottom-up pass marks passing subtrees. One descent selects the first passing packet in preorder. A finite-state transducer copies the final row from its word. Unfolding the two tape tracks, projecting the main stack, reversing its digits and dropping the final $1$ returns $y$. Every passing packet gives the same $y$. These are fixed linear passes on the expanded tree and row. To test any regular property of $y$, each segment need only store its action on the finitely many states of the output automaton. This also handles reversed segments and yields the regular preimage in the theorem.
+\papersection{Comparing successive configurations}\label{sec:comparison}
+Each record or color has a distinct $s$-letter block $[\cdot]$, for fixed $s>1$. Each starts with $A$ and ends in a probe $B$. Four boundary labels delimit the two tracks in the word
+\[
+\mathcopy{B\string^(sW) A [U\string_b][u\string_1]\unichar{8943}[u\string_n][U\string_e][V\string_e][v\string_m]\unichar{8943}[v\string_1][V\string_b].}{%
+ B^{sW}A\,[U_b][u_1]\cdots[u_n][U_e][V_e][v_m]\cdots[v_1][V_b].}
+\]
+The records $u_k$ occur in row order. Their probes are born $s$ rounds apart. In the same snapshot each later probe has scanned $s$ fewer letters, so it reads one block farther left. We therefore store the colors $v_k$ of $C$ in reverse row order. The fast route always takes the short continuation. The delayed route takes one extra round at each of the $Ws$ header letters $B$, so it reads another $W$ blocks to the left.
+
+\lead{Calibration}
+Require the fast probe at $U_b$ to see the suffix $[V_b]$. Its scan age is then the starting position $b$ of that block. In the two-cell example, $W=3$. For the record at $a$, the fast probe reads $a$ and the delayed probe reads $c$. The proposed update passes this comparison exactly when $a^+=c$. In general the probe for record $k$ is born $ks$ rounds after the boundary probe on the same route. In the calibrated snapshot the two routes therefore read positions
+\[
+\mathcopy{b \unichar{8722} ks (fast route) and b \unichar{8722} (k + W)s (delayed route).}{%
+ \underbrace{b-ks}_{\text{fast route}}
+ \qquad\text{and}\qquad
+ \underbrace{b-(k+W)s}_{\text{delayed route}}.}
+\]
+The fast probe at $U_e$ must see $V_e$. Their distances from $U_b$ and $V_b$ are $n+1$ and $m+1$ blocks, so $m=n$. Record $k$ thus sees $v_k$ and, when present, $v_{k+W}$. Past that track it can see only a boundary, a record, or an aligned header fragment beginning with $B$. All color blocks begin with $A$ and have distinct labels. At the calibrated time even the delayed route has had at least $(n+2)s+1$ rounds since its header ended, enough for every required probe to be born.
+
+Require the fast route to match the current color, and the delayed route to match the proposed successor or see no color at a final site. This enforces the shift of Section~\ref{sec:history}. The two $S$-scans supply the displacement $Ws$. Given these aligned cells, the read-only automaton checks each proposed update against the universal machine's transition table. It tabulates one answer per incoming parser state, using the same finite table for every $W$, program and input.
+
+\lead{Output recovery}
+A high-order $1$ preserves trailing zeros and the empty string. Let $p$ be the binary number of a program for $f$ on coded strings. The seed suffix stores the reversed strings and three fixed symbols in fixed-width blocks. An end marker separates input from padding, so reading from the end fixes the initial data. Crossing the right boundary removes the head and prevents acceptance. Every finite halting run fits with enough blank padding. Its rectangle extends the suffix and passes both checks at the calibrated age.
+
+For a fixed program and input, every passing packet on its orbit gives the same result. For a regular output test, each segment acts on a finite state set. Composing these actions in reading order gives the tree automaton for the preimage.
+
+\lead{Interface costs}
+Fix the finite tables from Section~\ref{sec:history}. The encoder writes a constant-size block per tape cell in $O(1+|p|+|x|)$ time. On an expanded $N$-node tree, a bottom-up pass marks passing packets. One path reaches the first in preorder. Lean bounds marking and selection together by $2N$ node visits and proves that reading this packet gives the specified row. Copying the row, unfolding the tracks, reading the digits and dropping the final $1$ take a fixed number of linear passes. Thus detection and decoding each take $O(N)$ time for the observed snapshot.
+
+A fixed finite tree automaton can test any one snapshot. For one fixed detector, the orbit of a seed indexed by a program and a numerical input reaches an accepting snapshot exactly when the program halts on that input. The resulting reachability problem is recursively enumerable complete under many-one reductions.

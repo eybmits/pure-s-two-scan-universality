@@ -1,0 +1,149 @@
+\lead{One step and one round}
+A term is either $S$ or an ordered pair of terms, written $fa$.
+Its size is its number of leaves. One step contracts $Sxyz$ to $(xz)(yz)$
+at the root or performs one such step inside either child.
+A term is normal if it admits no step. The function $\pi$ fixes $S$.
+At $fa$ with both children normal, it contracts the root if it matches and
+otherwise returns $fa$. In every other case it returns $\pi(f)\pi(a)$.
+
+The sweep lists the tree after each contraction. A leaf gives the empty list and an innermost root gives just its reduct.
+Otherwise, first sweep $f$ with $a$ fixed, then sweep $a$ with $\pi(f)$
+fixed. Induction on the tree shows that the two lists join at
+$\pi(f)a$ and end at $\pi(f)\pi(a)$. Every listed move contracts a single
+original innermost site. New sites wait until the next sweep. Concatenating
+the sweeps gives the path through all parallel round boundaries.
+In Lean, \decl{SerialTableau.parallel_agrees} identifies
+the round functions and
+\decl{SerialTableau.sweep_is_single_steps} verifies one
+sweep. In \decl{TwoScans.SerialReadout}, \decl{prefix_path} joins
+the sweeps and \decl{one_is_step} identifies each move with a pure
+$S$ contraction.
+
+\lead{What the observer reads}
+A bottom-up tree automaton has a finite state set $H$, a leaf state $h_S$,
+a table $F:H^2\to H$ and a set of accepting states.
+Its state at $fa$ is $F(h(f),h(a))$. For words, \decl{WordRead.Attr}
+uses a finite state, a right-to-left letter transition and a final output
+map. For a Boolean output this defines a regular language.
+Fix such a language $L$. For each local packet the automaton tests both
+whether the packet passes and whether its output belongs to $L$.
+It carries one of three outcomes upwards: no hit, hit outside $L$, or hit
+in $L$. At each node take the first hit among the node, its left subtree
+and its right subtree. An earlier hit outside $L$ therefore takes priority
+over any later hit in $L$. This is the preorder construction in
+\decl{Readback.first_preimage}.
+
+\lead{Terms for generation and scanning}
+The terms $R_z$ prepend a letter, $L$ starts the scanner, and $T$ marks the word it is scanning. The auxiliary terms $E,U$ keep the scan active. Their definitions are
+\[
+\mathcopy{R\string_z = S(SzS)z, E = S(SAA)A.\unichar{10}L = S(SSS)S, U = S(SL)(SS(SE)).\unichar{10}T\string_0 = S, T\string_(j+1) = S T\string_j.\unichar{10}T = T\string_21, Q = S T L.\unichar{10}g = S R\string_A (S R\string_B (S Q U)).}{%
+\begin{alignedat}{2}
+ R_z&=S(SzS)z,     &\quad E&=S(SAA)A,\\
+ L&=S(SSS)S,        & U&=S(SL)(SS(SE)),\\
+ T_0&=S,            & T_{j+1}&=ST_j,\\
+ T&=T_{21},         & Q&=STL,\\
+ g&=SR_A(SR_B(SQU)).
+\end{alignedat}}
+\]
+For $u=\wrap{w}$ and $x=zu$, two rounds take $R_zu$ to $(x(Su))x$. Once $x(Su)$ is normal, follow its application to $x$ down the wrappers of $x$. An $A$ wrapper exposes the continuation on the right and a $B$ wrapper exposes it on the left. The base exposes $gx$, the next generator call.
+
+To see why $L\wrap{w}$ stays active, first take any normal term $u$. Put $k=Su(SEu)$, $z_0=Sk$ and $z_{j+1}=Az_j$. The subtree $Uu$ exposes $kz_0$. From $kz_j$, the $E$ branch exposes $(z_{j+1}z_{j+1})z_{j+1}$, whose $A$ wrappers lead to $kz_{j+1}$. The growing $z_j$ therefore occur inside the orbit of $gu$, so it always has a redex. The descent in $L\wrap{w}$ exposes such a call, with $u=(S\wrap{w})(S\wrap{w})$.
+
+This also explains why the sweep freezes its sites. A policy that selects the leftmost innermost redex afresh after every contraction would stay inside the first branch $R_A\wrap{\sigma}$. That branch renews an active generator. Distinct innermost contractions commute at disjoint sites, so an innermost normalization would force every innermost reduction of that branch to terminate.
+
+\lead{Origin of a tagged packet}
+Write $u_w=\wrap{w}$ and $H_w(a)=\pi^a(Lu_w)$. For the seed $g u_\sigma$,
+\decl{Shell.shell_orbit_iff} says that $(Tu_w)r$ occurs in some round
+exactly when $w=d\sigma$ for some prefix $d$ and $r=H_w(a)$ for some
+age $a$. For existence, the generator renews each one-letter extension
+and launches $Qu_w$. Its first contraction gives $(Tu_w)H_w(0)$.
+The tag is normal and the body stays reducible. Hence each later round
+advances the body inside that packet.
+
+For the converse, start with the two normal operands $g,u_\sigma$.
+Every application in a reduct was already in one operand or contains
+$u_\sigma$ in its right child. At a contracted root the third argument
+contains this anchor, which survives in both new branches. Induction
+under left and right contexts preserves the assertion. The marker $T$
+and $ST$ are smaller than the anchor. The initial syntax consequently
+protects their small occurrences: $T$ as a right child can occur only in
+$ST$, and $ST$ can be applied only to $L$. Thus a new child $Tz$ can arise
+in a contraction only from $STLz$, paired immediately with $Lz$.
+Here $z$ is normal. If $z=u_w$, its copy of $u_\sigma$ lies on the
+right-hand word spine, since every side branch and the base $g$ are
+smaller. Hence $w$ ends in $\sigma$. If $z$ is a nonword it stays one.
+Induction on rounds now classifies every tagged occurrence, including
+copies inside larger packets. This provenance argument requires the seed.
+
+\lead{Why a probe cannot read a false operand}
+Put $u=u_w$ and $v=(Su)(Su)$. The probe recognizes the shape
+$(Su_x)(Su_y)$ for any wrapper words $u_x,u_y$. In a reduct of $uv$
+every occurrence of this shape is $v$ itself
+(\decl{Scan.operandIdentity}). Indeed $u$ and $v$ are normal, so an
+application is inherited from them or its right child contains $v$.
+The shape cannot occur inside a wrapper word: its two wrapped operands
+are larger than $g$, whereas an application on the wrapper spine has
+left child $S$, $A$ or $B$. It cannot occur strictly inside $v$ either.
+Finally a new match would put $v$ inside $Su_y$, which the same shape
+argument excludes. This proves identity without comparing two strings.
+
+After $j\le |w|$ rounds the scanner has peeled $j$ wrappers. Their
+normal left children are $Sv$ or $Av$ and their right spine ends in
+$u_{\mathrm{drop}_j(w)}v$. For $j<|w|$ the reader follows that spine to
+the indicated suffix. At exhaustion it ends in the normal term $(Sg)v$.
+Every remaining reducible application has a right operand larger than
+$v$: this follows up the stack from the normal base. An $S$ contraction
+preserves the bound, since it duplicates its third argument and leaf
+count never decreases. Thus no later redex can present an operand of the
+recognized shape. This proves \decl{Observer.read_exact} even for the
+empty word. For a nonempty packet ending in $B$, the innermost remaining
+frame is $(Av)k$ with $k=(Sg)v$; it contracts to $(Sk)(vk)$.
+
+\lead{How the clocks force a row comparison}
+Let $n$ be the number of records, $m$ the number of colors, $W>0$ the
+proposed stride and $s>1$ the block length. Number the $U$-blocks from
+zero at $U_b$ through $n+1$ at $U_e$. Write
+$b=1+(n+m+W+3)s$, the bit position of the first letter of $[V_b]$ in
+the packet. The fast rear-boundary test reads the entire suffix $[V_b]$.
+Its length fixes its position uniquely. Measured from the end of the
+fast header, its probe is born after $s+1$ rounds, so acceptance fixes
+this clock at $b+s+1$. At block $k$ the probe is born after
+$(k+1)s+1$ rounds. The slow header takes another $Ws$ rounds. Subtracting
+these times yields the two suffix indices $b-ks$ and $b-(k+W)s$.
+Both probes exist even at $k=n+1$, since
+$b+s+1-Ws=2+(n+m+4)s\ge(n+2)s+1$.
+Thus timing suffices in both directions: any passing age forces these
+indices, and choosing this age tests every prescribed index.
+
+Reading backwards from $V_b$, only block $m+1$ is $V_e$.
+The fast check at $U_e$ therefore gives $m=n$. The color at position
+$k$ is now the current value for site $k$, and position $k+W$ supplies
+its expected successor. Beyond the color track a label is a boundary
+or a record, or the aligned block is in the header and starts with $B$.
+None decodes as a color (\decl{Join.checked_tests}). A row separator is
+itself a color, distinct from an absent color.
+
+\lead{Why the shift is by one row}
+The delayed tests are exactly equality, at every index, of
+$\dropop_W(C)$ and the string $N$ of predicted rows, including their ends.
+A packed row begins with $\#$ and its cells never contain $\#$.
+For $r>0$, $N$ starts at a separator and contains $r$ of them, while $C$
+contains $r+1$. The deleted prefix therefore consists of exactly the first
+row. Splitting the equal suffixes at every separator gives
+$R_{i+1}=\delta(R_i)$, where $\delta$ is the locally checked row update.
+Induction from the anchored first row proves that the last row is genuine
+(\decl{Tableau.all_successors}). When $r=0$, $N$ is empty and any
+$W\ge|C|$ satisfies the shift. The only row is already final. Conversely,
+a finite run with sufficient blank padding supplies equally wide rows;
+choosing the width with its separator makes every comparison pass.
+
+\lead{Two finite-state comparisons}
+Fix a bottom-up automaton $(H,h_S,F)$ as above. For the copier
+$t_{j+1}=(S t_j)t_j$, its root states iterate the finite map
+$q\copymapsto F(F(h_S,q),q)$. Starting at $h(t_0)$, stop at acceptance or at
+the first repeated state. For a bare word enumerator, suppose the observed
+trees are exactly $K[u_{d\sigma},\ldots,u_{d\sigma}]$ for all prefixes
+$d$, with a fixed finite context $K$ and a fixed number of copies.
+Start at $h(u_\sigma)$ and close under $q\copymapsto F(h(A),q)$ and
+$q\copymapsto F(h(B),q)$. Each reachable $q$ gives the root state of $K$
+by inserting $q$ at every hole. This decides whether the enumerator reaches the detector. In our construction the scans supply the variable shift, and \decl{OrbitHardness.complete_indexed} proves many-one completeness for the resulting program--input hit problem.

@@ -1,0 +1,23 @@
+Subject: Submission to the Wolfram S Combinator Challenge
+
+Dear Members of the S Combinator Challenge Committee,
+
+Please consider my manuscript, “Universal Computation with the S Combinator under Parallel Innermost Reduction,” for the Wolfram S Combinator Challenge.
+
+The manuscript proves universality in the weaker of the two forms described in the prize announcement, in which some evaluation order of S performs any given deterministic computation. One schedule works for every program and input. For every partial computable function f on binary strings, there is a program p such that, for all x and y, the decoder reports y at some round boundary exactly when f(x) = y. Only the initial S-tree depends on p and x. Its size is linear in their combined length. The encoder, parallel innermost schedule, finite tree automaton and decoder are fixed.
+
+The S-tree generates candidate histories of one universal machine. Two scans driven by ordinary S contractions align corresponding tape cells in successive rows, however wide the rows are. The automaton checks the machine’s local transition rule on the aligned cells. For the bare word enumerator in the appendix, reachability is decidable for every finite tree automaton. With the scans, reaching one fixed regular tree language is r.e.-complete on encoded program–input pairs, although normalization of ground S-terms is decidable.
+
+The theorem concerns this schedule alone. It makes no claim about multiway emulation or other evaluation orders, including leftmost outermost. The tree generates whole candidate histories without stepping the machine from one configuration to the next. The proof gives no estimate for the time to first detection. A separate reader recovers configurations in order, even on nonhalting runs, by comparing unbounded counts. This reader goes beyond finite-state detection. The manuscript derives the running times. Lean verifies the underlying structural bounds.
+
+The proof uses Mathlib to establish the existence of a finite universal transition table. Given that table, the encoder writes the seed by explicit blockwise replacements. The archive supplies neither an explicit universal table nor a Wolfram Language implementation. The two-cell Python example starts from a hand-built packet. The guarantee that a halting program eventually produces a detection from its universal seed comes from the proof.
+
+The PDF embeds the Lean sources and replay instructions. Lean 4.35.0 and Nanoda 0.4.19 checked all nine exported theorems. Theorem 1 is TwoScans.Certified.universality. The archive’s TCB_AUDIT.md gives the theorem statements, axiom reports and commands for both checks.
+
+The manuscript discusses the earlier preprint coordinated by Alexander Filin. I directed the research. OpenAI Codex assisted extensively with proof development, Lean formalization and drafting the manuscript.
+
+Sincerely,
+Markus Baumann
+Chair of Mobile and Distributed Systems, Department of Computer Science
+Ludwig-Maximilians-Universität München
+markus.baumann@ifi.lmu.de

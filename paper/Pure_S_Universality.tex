@@ -1,0 +1,382 @@
+% Build with latexmk -pdf Pure_S_Universality.tex beside pure-s-lean-proof.zip.
+\begin{filecontents*}[overwrite]{pure-s-abstract.tex}
+With one fixed evaluation order, trees built from the $S$ combinator alone can compute every partial computable function on binary strings. This is the weaker deterministic form of universality discussed in Wolfram's prize announcement. A finite tree encodes the program and input. Each round marks the innermost places where the $S$ rule applies, then reduces them from left to right.
+
+The tree generates candidate histories of one fixed universal machine. Two scans driven by $S$ align corresponding tape cells in successive rows, however wide the rows are. At round boundaries a fixed finite tree automaton checks the local transition rule and detects a halting history. A fixed decoder reads the answer from its last row. If the program halts, its answer is eventually reported and every report is correct. If it runs forever, nothing is reported. On encoded program--input pairs, reachability of one fixed regular tree language is r.e.-complete under this schedule, although normalization of ground $S$-terms is decidable. The proofs were formalized in Lean and checked with Nanoda.
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-introduction.tex}
+\papersection{The evaluation path and the main result}
+Wolfram proposed reading a computed answer from a growing $S$-tree with a bounded detector and decoder~\cite{wolfram2020}. His prize announcement contrasts multiway emulation with a weaker alternative in which some evaluation order performs any given deterministic computation~\cite{wolfram2021}. We establish the latter using one schedule and one observer for every program. The tree generates candidate histories of one universal machine. If a cell record predicts $a^+$, the next row must contain $a^+$ in that cell. Two scans driven by $S$ bring the cells together across any row width. The observer checks their values against the machine's fixed transition rule.
+
+A ground $S$-term is a finite binary application tree with $S$ at every leaf. Application associates to the left. At the start of each round, mark all innermost redexes. From left to right, contract each marked $Sxyz$ to $(xz)(yz)$. These subtrees are disjoint. New redexes wait until the next round. Each contraction is a legal $S$ step, and the sweep ends at the parallel innermost reduct $\pi(t)$. Set $\pi^0(t)=t$ and $\pi^{n+1}(t)=\pi(\pi^n(t))$.
+
+\begin{theorem}\label{thm:main}
+There are a fixed encoder $e$ and a fixed partial decoder $D$ such that, for every partial computable function $f$ on binary strings, some program $p$ satisfies, for all strings $x,y$,
+\[
+ \mathcopy{f(x) = y \unichar{8660} \unichar{8707}n \unichar{8805} 0, D(\unichar{960}\string^n(e(p,x))) = y.}{f(x)=y \quad\Longleftrightarrow\quad \exists n\geq 0\quad D(\pi^n(e(p,x)))=y.}
+\]
+The seed has $O(1+|p|+|x|)$ leaves. On all ground trees, $\operatorname{dom}(D)$ and $D^{-1}(L)$ are regular tree languages for every regular string language $L$. Whenever $D(t)$ is defined, its length is at most twice the number of leaves of $t$.
+\end{theorem}
+
+Only the seed changes between a copy program and an infinite loop. The same reader reports the input for the first and stays silent for the second. Theorem~\ref{thm:main} samples at round boundaries. Can we trust every output if we inspect the tree after each individual $S$ contraction?
+
+\begin{corollary}[Output after individual contractions]\label{cor:majority}
+Under the same left-to-right sweep, a linear-size seed, a regular detector and a fixed decoder realize the input--output equivalence of Theorem~\ref{thm:main} when the tree is observed after each individual contraction. Every detection returns the correct output.
+\end{corollary}
+\emph{Proof.} Use three copies of the seed. The schedule sweeps one copy at a time, leaving at least two at round boundaries. Accept when all three detectors pass. The two boundary copies then report the same correct string, even if they are at different rounds. Return the first output if it agrees with the second, and the third otherwise. Conversely, every passing parallel round is reached with all three copies equal.\hfill$\square$
+
+The three-copy decoder compares strings of unbounded length. The regular-preimage assertion of Theorem~\ref{thm:main} concerns its original decoder. For each regular output language $L$, one fixed bottom-up automaton tests whether the output belongs to $L$. On any tree the decoder chooses the first candidate in preorder that passes the tests.
+
+\lead{Why enumeration alone falls short}
+Consider a machine that preserves its tape and halts in one step. Its first row can contain any of $2^k$ tapes of length $k$. Each has a different matching final row. An automaton reading those rows in sequence would have to distinguish all $2^k$ possibilities. Our scans present corresponding cells in the same snapshot. The appendix gives the finite-state decision procedure for a bare word enumerator and for a pure copier.
+
+\lead{Scope and prior work}
+The observer verifies whole candidate histories. The tree does not compute each configuration from its predecessor. A clocked reader recovers the verified configurations in order (Section~\ref{sec:chronology}). Ground $S$ normalization is decidable~\cite{waldmann}. We read outputs at finite points on the specified path. The theorem gives no guarantee about persistence, time to first detection or other evaluation orders.
+
+The earlier project coordinated by Filin obtains ordered checkpoints with a deterministic root-restarted controller, fixed for a universal cyclic-tag program~\cite[Theorem~1R and Corollary~2.2]{filin}. Its tree walk selects each redex. Our evaluator sweeps the innermost sites present at the start of each round.
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-evaluation.tex}
+\papersection{Encoding a computation history}\label{sec:history}
+An existence proof using Mathlib's universal evaluator supplies one tape machine with a finite transition table. We fix this table for all programs and inputs. The encoder is defined for any such table. We fold the tape at the origin into two tracks. Each row marks the head and its state. Each nonfinal cell record gives a cell, its neighbors and its proposed update. A word automaton checks the overlapping triples against the fixed table and requires a halted head in the last row.
+
+Prefix each row with a separator $\#$ and concatenate the rows to form $C$. Form $N$ from the proposed successor rows in the same way. With $W$ sites per row including the separator, consistency requires $\dropop_W(C)=N$, where $\dropop_W$ deletes the first $W$ symbols. For two cells per row, the comparison is
+\[
+\mathcopy{C: \# a b, \# c d, \# e f. N: \# a\string^+ b\string^+, \# c\string^+ d\string^+. (W = 3).}{%
+\begin{array}{c@{\qquad}l@{\qquad}l@{\qquad}l}
+ C & \#\,a\,b & \#\,c\,d & \#\,e\,f \\
+ N &            & \#\,a^+\,b^+ & \#\,c^+\,d^+
+\end{array}\qquad (W=3).}
+\]
+Here $a^+$ is the update proposed by the record for $a$. The next row records $c$ in that cell. Section~\ref{sec:comparison} shows how the tree checks whether $a^+=c$.
+
+If $C$ has $r+1$ rows, $N$ has $r$ separators. For $r>0$, $N$ begins at a separator, so the shift removes exactly one row. Splitting the common suffix at its separators identifies each remaining row with the update of its predecessor. The local update preserves row length, so all these rows have equal width. For $r=0$ the initial row is already final and $N$ is empty. Any $W$ at least as large as the encoded row passes the shift test and gives that same final row.
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-background.tex}
+\papersection{Generating candidate histories}
+The generator must extend each word by either letter and launch a scan of the word already present, all on the same orbit. Each launch must keep its word attached to its own scan. Otherwise a scan of one history could certify another.
+
+\lead{Word generation}
+Use $A=SS$ and $B=SA$ as letters. The generator $g$ appears at the end of every wrapped word. We set $\wrap{\varepsilon}=Sg$ and $\wrap{zw}=z\wrap{w}$ for $z\in\{A,B\}$. The seed $g\wrap{\sigma}$ stores the program and input in the suffix $\sigma$. Given $u=\wrap{w}$, the call $gu$ exposes three subtrees over successive rounds. The branches $R_Au$ and $R_Bu$ lead to new calls $g\wrap{Aw}$ and $g\wrap{Bw}$. The third branch, $Qu$, launches the scan of $w$. Induction on the number of prepended letters gives a launch for every word ending in $\sigma$. The appendix gives the terms and the reductions for one extension.
+
+\lead{Packet recognition}
+The following contraction launches a \emph{packet}.
+\[
+\mathcopy{Q\unichar{10216}w\unichar{10217} \unichar{8594} (T\unichar{10216}w\unichar{10217})(L\unichar{10216}w\unichar{10217})}{%
+ Q\wrap{w}\step(T\wrap{w})(L\wrap{w})}
+\]
+Its left child stores the word under the fixed marker $T$. Its right child runs the scan and always has a redex. Thus the packet stays together while the scan advances. The marker can first appear in this position only through a launch. More precisely, $(T\wrap{w})H$ occurs on the seed orbit exactly when $w$ ends in $\sigma$ and $H=\pi^a(L\wrap{w})$ for some age $a$. The appendix proves this from the shape of the marker. On an arbitrary tree the detector could accept the word of one packet paired with the scan of another. On the seed orbit, both children come from the same launch.
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-methodology.tex}
+\lead{The scan delay}
+For $u=\wrap{w}$ let $q=Su$, $v=qq$, and let $r(z)$ be the normal form of $zq$ for a wrapped suffix $z$ of $u$. After $3+\#_A(w)+2\#_B(w)$ rounds of preparation the scan is $r(u)v$. Its two routes follow from
+\[
+\mathcopy{r(Az)v \unichar{8594} (qv)(r(z)v),\unichar{10}r(Bz)v \unichar{8594} (r(z)v)((q r(z))v),\unichar{10}(q r(z))v \unichar{8594} (uv)(r(z)v),\unichar{10}r(Sg)v \unichar{8594} (gv)(qv).}{%
+\begin{aligned}
+ r(Az)v      &\step (qv)(r(z)v),\\
+ r(Bz)v      &\step (r(z)v)((q\,r(z))v),\\
+ (q\,r(z))v  &\step (uv)(r(z)v),\\
+ r(Sg)v      &\step (gv)(qv).
+\end{aligned}}
+\]
+At $B$ the direct continuation is the left child after one round. In the next round it advances, while the right child splits into the fresh scanner $uv$ on the left and the delayed continuation $r(z)v$ on the right. The scanner peels one wrapper per round, since $(Az)v\step Sv(zv)$ and $(Bz)v\step(Av)(zv)$. At a probe letter $B$ in zero-based position $i$, the scanner is born at $i+d+2$, with $d$ earlier long continuations and time measured from the end of preparation. At $A$ the left marker is normal and the right continuation is active. Shape and normality are finite-state tests.
+
+\lead{Exact read position}
+The finite reader follows the right branches of the peeled wrappers. It tests for an operand of shape $(S\wrap{w_1})(S\wrap{w_2})$ without comparing $w_1$ and $w_2$. In this scan every match equals $v$. A new application contains $v$ in its right child, which the shape $S\wrap{w_2}$ excludes. Let $j=t-i-d-2$ be the scanner's age. A probe reads the suffix beginning at $j$ exactly when $0\leq j<|w|$.
+
+Every candidate word on an encoded machine orbit ends in the input suffix $\sigma$, whose final block $[V_b]$ ends in $B$. After this last wrapper peels, set $h=(Sg)v$. The innermost frame takes the step $(Av)h\step(Sh)(vh)$. The general exhaustion argument works for any last letter and for the empty word. Once all wrappers have peeled, $h$ is normal and every remaining redex has a right operand larger than $v$. Contractions preserve this bound, so the reader can never again match an active site with operand $v$.
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-conclusion.tex}
+\papersection{Comparing successive configurations}\label{sec:comparison}
+Each record or color has a distinct $s$-letter block $[\cdot]$, for fixed $s>1$. Each starts with $A$ and ends in a probe $B$. Four boundary labels delimit the two tracks in the word
+\[
+\mathcopy{B\string^(sW) A [U\string_b][u\string_1]\unichar{8943}[u\string_n][U\string_e][V\string_e][v\string_m]\unichar{8943}[v\string_1][V\string_b].}{%
+ B^{sW}A\,[U_b][u_1]\cdots[u_n][U_e][V_e][v_m]\cdots[v_1][V_b].}
+\]
+The records $u_k$ occur in row order. Their probes are born $s$ rounds apart. In the same snapshot each later probe has scanned $s$ fewer letters, so it reads one block farther left. We therefore store the colors $v_k$ of $C$ in reverse row order. The fast route always takes the short continuation. The delayed route takes one extra round at each of the $Ws$ header letters $B$, so it reads another $W$ blocks to the left.
+
+\lead{Calibration}
+Require the fast probe at $U_b$ to see the suffix $[V_b]$. Its scan age is then the starting position $b$ of that block. In the two-cell example, $W=3$. For the record at $a$, the fast probe reads $a$ and the delayed probe reads $c$. The proposed update passes this comparison exactly when $a^+=c$. In general the probe for record $k$ is born $ks$ rounds after the boundary probe on the same route. In the calibrated snapshot the two routes therefore read positions
+\[
+\mathcopy{b \unichar{8722} ks (fast route) and b \unichar{8722} (k + W)s (delayed route).}{%
+ \underbrace{b-ks}_{\text{fast route}}
+ \qquad\text{and}\qquad
+ \underbrace{b-(k+W)s}_{\text{delayed route}}.}
+\]
+The fast probe at $U_e$ must see $V_e$. Their distances from $U_b$ and $V_b$ are $n+1$ and $m+1$ blocks, so $m=n$. Record $k$ thus sees $v_k$ and, when present, $v_{k+W}$. Past that track it can see only a boundary, a record, or an aligned header fragment beginning with $B$. All color blocks begin with $A$ and have distinct labels. At the calibrated time even the delayed route has had at least $(n+2)s+1$ rounds since its header ended, enough for every required probe to be born.
+
+Require the fast route to match the current color, and the delayed route to match the proposed successor or see no color at a final site. This enforces the shift of Section~\ref{sec:history}. The two $S$-scans supply the displacement $Ws$. Given these aligned cells, the read-only automaton checks each proposed update against the universal machine's transition table. It tabulates one answer per incoming parser state, using the same finite table for every $W$, program and input.
+
+\lead{Output recovery}
+A high-order $1$ preserves trailing zeros and the empty string. Let $p$ be the binary number of a program for $f$ on coded strings. The seed suffix stores the reversed strings and three fixed symbols in fixed-width blocks. An end marker separates input from padding, so reading from the end fixes the initial data. Crossing the right boundary removes the head and prevents acceptance. Every finite halting run fits with enough blank padding. Its rectangle extends the suffix and passes both checks at the calibrated age.
+
+For a fixed program and input, every passing packet on its orbit gives the same result. For a regular output test, each segment acts on a finite state set. Composing these actions in reading order gives the tree automaton for the preimage.
+
+\lead{Interface costs}
+Fix the finite tables from Section~\ref{sec:history}. The encoder writes a constant-size block per tape cell in $O(1+|p|+|x|)$ time. On an expanded $N$-node tree, a bottom-up pass marks passing packets. One path reaches the first in preorder. Lean bounds marking and selection together by $2N$ node visits and proves that reading this packet gives the specified row. Copying the row, unfolding the tracks, reading the digits and dropping the final $1$ take a fixed number of linear passes. Thus detection and decoding each take $O(N)$ time for the observed snapshot.
+
+A fixed finite tree automaton can test any one snapshot. For one fixed detector, the orbit of a seed indexed by a program and a numerical input reaches an accepting snapshot exactly when the program halts on that input. The resulting reachability problem is recursively enumerable complete under many-one reductions.
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-experimental-section.tex}
+\papersection{Reading a run in order}\label{sec:chronology}
+What can the tree reveal about a computation that never halts? Fix a deterministic machine with one semi-infinite tape and absorbing halts. Write $C_i$ for its configuration after $i$ steps, omitting the right boundary marker and trailing blanks beyond the head. Choosing the universal machine of Section~\ref{sec:history} fixes one reader for every program and input.
+
+\lead{Finite prefixes in parallel rounds}
+Allow any head state in the final row. A fixed finite tree automaton detects whether the tree contains a passing packet. Each such packet gives the true rows through its final step. For any $h$ and round bound $B$, pad a tableau through $C_h$ until its word is larger than every tree through round $B$. The generator eventually produces this packet, necessarily after $B$. Reading a passing packet with the most rows (first in preorder on ties) therefore recovers $C_0,\ldots,C_h$ together, even on a nonhalting run.
+
+\begin{samepage}\begin{corollary}[Chronological readout]\label{cor:chronology}
+Freeze each round's initial innermost redexes and contract them from left to right. A linear-size seed and a fixed reader of the current tree give $(i,C_i)$ at times $0=t_0<t_1<\cdots$. Every reported pair is correct for its index. The increasing times select one observation per index.
+\end{corollary}\end{samepage}
+
+The reader compares unbounded row counts and counts differing clock sites, operations beyond the finite-state detector. The seed pairs the data and literal initial row with two copies of the empty-suffix generator. During the first copy's sweep the second copy and data stand still. After $i+1$ contractions the copies differ at $i+1$ original redex sites, directing the reader to row $i$ of a longest passing packet. While the second copy advances, the data still form a round snapshot. While the data advance, equal clocks give $(0,C_0)$. Each renewal leaves another disjoint active subtree, so every sufficiently late sweep has more than $i$ sites. Arbitrarily late snapshots cover $i$. Taking the first subsequent report of each next index recovers the run online.
+
+\papersection{Formal verification}
+Lean~4.35.0 and Nanoda~0.4.19 checked all nine exported theorems. Two copies suffice when the reader stops at the first detection. After each contraction a finite tree automaton tests whether both copies pass. At the first hit the decoder returns the output of the left copy (\decl{Prize.serial_universal_strings}). With three copies, every later report is correct as well (Corollary~\ref{cor:majority}). The proof of Theorem~\ref{thm:main} uses exactly \decl{propext}, \decl{Classical.choice} and \decl{Quot.sound}. The export admits only these three axioms. Lean checks the seed and output sizes, regularity, and structural traversal bounds. \decl{Select.linear_selection} bounds the packet search and \decl{AnyTape.streamed_report} identifies its result with the streamed readout. Section~\ref{sec:comparison} counts the passes to obtain the running times.
+
+The embedded and standalone copies of \texttt{pure-s-lean-proof.zip} are identical. Start with \decl{TCB_AUDIT.md} for definitions, theorem statements and replay commands. \decl{formal/Certified.lean} contains Theorem~\ref{thm:main}. The two-cell Python example exercises the scans on a prepared packet.
+\par\smallskip\noindent\begin{minipage}{\columnwidth}\small \emph{Acknowledgment.} I directed the research. OpenAI Codex assisted extensively with proof development, Lean formalization and drafting the manuscript.\end{minipage}
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-related-work.tex}
+\bibliography{pure-s-references}
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-audit-appendix.tex}
+\lead{One step and one round}
+A term is either $S$ or an ordered pair of terms, written $fa$.
+Its size is its number of leaves. One step contracts $Sxyz$ to $(xz)(yz)$
+at the root or performs one such step inside either child.
+A term is normal if it admits no step. The function $\pi$ fixes $S$.
+At $fa$ with both children normal, it contracts the root if it matches and
+otherwise returns $fa$. In every other case it returns $\pi(f)\pi(a)$.
+
+The sweep lists the tree after each contraction. A leaf gives the empty list and an innermost root gives just its reduct.
+Otherwise, first sweep $f$ with $a$ fixed, then sweep $a$ with $\pi(f)$
+fixed. Induction on the tree shows that the two lists join at
+$\pi(f)a$ and end at $\pi(f)\pi(a)$. Every listed move contracts a single
+original innermost site. New sites wait until the next sweep. Concatenating
+the sweeps gives the path through all parallel round boundaries.
+In Lean, \decl{SerialTableau.parallel_agrees} identifies
+the round functions and
+\decl{SerialTableau.sweep_is_single_steps} verifies one
+sweep. In \decl{TwoScans.SerialReadout}, \decl{prefix_path} joins
+the sweeps and \decl{one_is_step} identifies each move with a pure
+$S$ contraction.
+
+\lead{What the observer reads}
+A bottom-up tree automaton has a finite state set $H$, a leaf state $h_S$,
+a table $F:H^2\to H$ and a set of accepting states.
+Its state at $fa$ is $F(h(f),h(a))$. For words, \decl{WordRead.Attr}
+uses a finite state, a right-to-left letter transition and a final output
+map. For a Boolean output this defines a regular language.
+Fix such a language $L$. For each local packet the automaton tests both
+whether the packet passes and whether its output belongs to $L$.
+It carries one of three outcomes upwards: no hit, hit outside $L$, or hit
+in $L$. At each node take the first hit among the node, its left subtree
+and its right subtree. An earlier hit outside $L$ therefore takes priority
+over any later hit in $L$. This is the preorder construction in
+\decl{Readback.first_preimage}.
+
+\lead{Terms for generation and scanning}
+The terms $R_z$ prepend a letter, $L$ starts the scanner, and $T$ marks the word it is scanning. The auxiliary terms $E,U$ keep the scan active. Their definitions are
+\[
+\mathcopy{R\string_z = S(SzS)z, E = S(SAA)A.\unichar{10}L = S(SSS)S, U = S(SL)(SS(SE)).\unichar{10}T\string_0 = S, T\string_(j+1) = S T\string_j.\unichar{10}T = T\string_21, Q = S T L.\unichar{10}g = S R\string_A (S R\string_B (S Q U)).}{%
+\begin{alignedat}{2}
+ R_z&=S(SzS)z,     &\quad E&=S(SAA)A,\\
+ L&=S(SSS)S,        & U&=S(SL)(SS(SE)),\\
+ T_0&=S,            & T_{j+1}&=ST_j,\\
+ T&=T_{21},         & Q&=STL,\\
+ g&=SR_A(SR_B(SQU)).
+\end{alignedat}}
+\]
+For $u=\wrap{w}$ and $x=zu$, two rounds take $R_zu$ to $(x(Su))x$. Once $x(Su)$ is normal, follow its application to $x$ down the wrappers of $x$. An $A$ wrapper exposes the continuation on the right and a $B$ wrapper exposes it on the left. The base exposes $gx$, the next generator call.
+
+To see why $L\wrap{w}$ stays active, first take any normal term $u$. Put $k=Su(SEu)$, $z_0=Sk$ and $z_{j+1}=Az_j$. The subtree $Uu$ exposes $kz_0$. From $kz_j$, the $E$ branch exposes $(z_{j+1}z_{j+1})z_{j+1}$, whose $A$ wrappers lead to $kz_{j+1}$. The growing $z_j$ therefore occur inside the orbit of $gu$, so it always has a redex. The descent in $L\wrap{w}$ exposes such a call, with $u=(S\wrap{w})(S\wrap{w})$.
+
+This also explains why the sweep freezes its sites. A policy that selects the leftmost innermost redex afresh after every contraction would stay inside the first branch $R_A\wrap{\sigma}$. That branch renews an active generator. Distinct innermost contractions commute at disjoint sites, so an innermost normalization would force every innermost reduction of that branch to terminate.
+
+\lead{Origin of a tagged packet}
+Write $u_w=\wrap{w}$ and $H_w(a)=\pi^a(Lu_w)$. For the seed $g u_\sigma$,
+\decl{Shell.shell_orbit_iff} says that $(Tu_w)r$ occurs in some round
+exactly when $w=d\sigma$ for some prefix $d$ and $r=H_w(a)$ for some
+age $a$. For existence, the generator renews each one-letter extension
+and launches $Qu_w$. Its first contraction gives $(Tu_w)H_w(0)$.
+The tag is normal and the body stays reducible. Hence each later round
+advances the body inside that packet.
+
+For the converse, start with the two normal operands $g,u_\sigma$.
+Every application in a reduct was already in one operand or contains
+$u_\sigma$ in its right child. At a contracted root the third argument
+contains this anchor, which survives in both new branches. Induction
+under left and right contexts preserves the assertion. The marker $T$
+and $ST$ are smaller than the anchor. The initial syntax consequently
+protects their small occurrences: $T$ as a right child can occur only in
+$ST$, and $ST$ can be applied only to $L$. Thus a new child $Tz$ can arise
+in a contraction only from $STLz$, paired immediately with $Lz$.
+Here $z$ is normal. If $z=u_w$, its copy of $u_\sigma$ lies on the
+right-hand word spine, since every side branch and the base $g$ are
+smaller. Hence $w$ ends in $\sigma$. If $z$ is a nonword it stays one.
+Induction on rounds now classifies every tagged occurrence, including
+copies inside larger packets. This provenance argument requires the seed.
+
+\lead{Why a probe cannot read a false operand}
+Put $u=u_w$ and $v=(Su)(Su)$. The probe recognizes the shape
+$(Su_x)(Su_y)$ for any wrapper words $u_x,u_y$. In a reduct of $uv$
+every occurrence of this shape is $v$ itself
+(\decl{Scan.operandIdentity}). Indeed $u$ and $v$ are normal, so an
+application is inherited from them or its right child contains $v$.
+The shape cannot occur inside a wrapper word: its two wrapped operands
+are larger than $g$, whereas an application on the wrapper spine has
+left child $S$, $A$ or $B$. It cannot occur strictly inside $v$ either.
+Finally a new match would put $v$ inside $Su_y$, which the same shape
+argument excludes. This proves identity without comparing two strings.
+
+After $j\le |w|$ rounds the scanner has peeled $j$ wrappers. Their
+normal left children are $Sv$ or $Av$ and their right spine ends in
+$u_{\mathrm{drop}_j(w)}v$. For $j<|w|$ the reader follows that spine to
+the indicated suffix. At exhaustion it ends in the normal term $(Sg)v$.
+Every remaining reducible application has a right operand larger than
+$v$: this follows up the stack from the normal base. An $S$ contraction
+preserves the bound, since it duplicates its third argument and leaf
+count never decreases. Thus no later redex can present an operand of the
+recognized shape. This proves \decl{Observer.read_exact} even for the
+empty word. For a nonempty packet ending in $B$, the innermost remaining
+frame is $(Av)k$ with $k=(Sg)v$; it contracts to $(Sk)(vk)$.
+
+\lead{How the clocks force a row comparison}
+Let $n$ be the number of records, $m$ the number of colors, $W>0$ the
+proposed stride and $s>1$ the block length. Number the $U$-blocks from
+zero at $U_b$ through $n+1$ at $U_e$. Write
+$b=1+(n+m+W+3)s$, the bit position of the first letter of $[V_b]$ in
+the packet. The fast rear-boundary test reads the entire suffix $[V_b]$.
+Its length fixes its position uniquely. Measured from the end of the
+fast header, its probe is born after $s+1$ rounds, so acceptance fixes
+this clock at $b+s+1$. At block $k$ the probe is born after
+$(k+1)s+1$ rounds. The slow header takes another $Ws$ rounds. Subtracting
+these times yields the two suffix indices $b-ks$ and $b-(k+W)s$.
+Both probes exist even at $k=n+1$, since
+$b+s+1-Ws=2+(n+m+4)s\ge(n+2)s+1$.
+Thus timing suffices in both directions: any passing age forces these
+indices, and choosing this age tests every prescribed index.
+
+Reading backwards from $V_b$, only block $m+1$ is $V_e$.
+The fast check at $U_e$ therefore gives $m=n$. The color at position
+$k$ is now the current value for site $k$, and position $k+W$ supplies
+its expected successor. Beyond the color track a label is a boundary
+or a record, or the aligned block is in the header and starts with $B$.
+None decodes as a color (\decl{Join.checked_tests}). A row separator is
+itself a color, distinct from an absent color.
+
+\lead{Why the shift is by one row}
+The delayed tests are exactly equality, at every index, of
+$\dropop_W(C)$ and the string $N$ of predicted rows, including their ends.
+A packed row begins with $\#$ and its cells never contain $\#$.
+For $r>0$, $N$ starts at a separator and contains $r$ of them, while $C$
+contains $r+1$. The deleted prefix therefore consists of exactly the first
+row. Splitting the equal suffixes at every separator gives
+$R_{i+1}=\delta(R_i)$, where $\delta$ is the locally checked row update.
+Induction from the anchored first row proves that the last row is genuine
+(\decl{Tableau.all_successors}). When $r=0$, $N$ is empty and any
+$W\ge|C|$ satisfies the shift. The only row is already final. Conversely,
+a finite run with sufficient blank padding supplies equally wide rows;
+choosing the width with its separator makes every comparison pass.
+
+\lead{Two finite-state comparisons}
+Fix a bottom-up automaton $(H,h_S,F)$ as above. For the copier
+$t_{j+1}=(S t_j)t_j$, its root states iterate the finite map
+$q\copymapsto F(F(h_S,q),q)$. Starting at $h(t_0)$, stop at acceptance or at
+the first repeated state. For a bare word enumerator, suppose the observed
+trees are exactly $K[u_{d\sigma},\ldots,u_{d\sigma}]$ for all prefixes
+$d$, with a fixed finite context $K$ and a fixed number of copies.
+Start at $h(u_\sigma)$ and close under $q\copymapsto F(h(A),q)$ and
+$q\copymapsto F(h(B),q)$. Each reachable $q$ gives the root state of $K$
+by inserting $q$ at every hole. This decides whether the enumerator reaches the detector. In our construction the scans supply the variable shift, and \decl{OrbitHardness.complete_indexed} proves many-one completeness for the resulting program--input hit problem.
+\end{filecontents*}
+\begin{filecontents*}[overwrite]{pure-s-references.bib}
+@misc{wolfram2020,
+  author = {Wolfram, Stephen},
+  title = {Combinators: A Centennial View},
+  year = {2020},
+  url = {https://writings.stephenwolfram.com/2020/12/combinators-a-centennial-view/}
+}
+
+@misc{wolfram2021,
+  author = {Wolfram, Stephen},
+  title = {1920, 2020 and a \$20,000 Prize: Announcing the {S} Combinator Challenge},
+  year = {2021},
+  url = {https://writings.stephenwolfram.com/2021/06/1920-2020-and-a-20000-prize-announcing-the-s-combinator-challenge/}
+}
+
+@article{waldmann,
+  author = {Waldmann, Johannes},
+  title = {The Combinator {S}},
+  journal = {Information and Computation},
+  volume = {159},
+  pages = {2--21},
+  year = {2000},
+  doi = {10.1006/inco.2000.2874}
+}
+
+@misc{filin,
+  author = {Filin, Alexander},
+  title = {Pure {S} Is Computationally Universal Under a Fixed Root-Restarted Finite Controller},
+  year = {2026},
+  note = {Project coordinator. Preprint dated 14 September 2026, revision 85a86798},
+  url = {https://github.com/cstrawberry/predictive-universe/blob/85a867988442fc423279341200f81634a1e65582/docs/paper/related/pure_s_universality/output/pdf/pure_s_universality.pdf}
+}
+\end{filecontents*}
+\documentclass[aps,prl,twocolumn,superscriptaddress,amsmath,amssymb,floatfix,longbibliography]{revtex4-2}
+\usepackage{amsthm}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{embedfile}
+\usepackage{accsupp}
+\input{glyphtounicode}
+\pdfgentounicode=1
+\newcommand{\decl}[1]{\texttt{\detokenize{#1}}}
+% Supply a linear, copyable reading of the theorem, including the exponent.
+\newcommand{\mathcopy}[2]{\BeginAccSupp{method=pdfstringdef,unicode,ActualText={#1}}#2\EndAccSupp{}}
+\newcommand{\maintitle}{Universal Computation with the S Combinator under Parallel Innermost Reduction}
+\hypersetup{colorlinks=true,linkcolor=blue!70!black,citecolor=magenta!75!black,urlcolor=blue!70!black,
+  pdftitle={\maintitle},pdfauthor={Markus Baumann},pdfsubject={Universality of the S combinator under parallel innermost reduction}}
+
+\newtheoremstyle{plainresult}{.55ex}{.65ex}{\normalfont}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{plainresult}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\renewcommand{\thesection}{\arabic{section}}
+\newcommand{\papersection}[1]{%
+  \par\addvspace{.6\baselineskip}\refstepcounter{section}%
+  \pdfbookmark[1]{\thesection. #1}{part-\thesection}%
+  \noindent\textbf{\textit{\thesection.\enspace #1.}}---\ignorespaces}
+\newcommand{\lead}[1]{\par\smallskip\noindent\textit{#1.}---\ignorespaces}
+\newcommand{\wrap}[1]{\langle #1\rangle}
+\newcommand{\dropop}{\operatorname{drop}}
+\newcommand{\step}{\longrightarrow}
+\newcommand{\copymapsto}{\mathrel{\mathcopy{\unichar{8614}}{\mapsto}}}
+\begin{document}
+\embedfile[filespec=pure-s-lean-proof.zip,mimetype=application/zip,desc={Lean sources and replay instructions}]{pure-s-lean-proof.zip}
+\title{\maintitle}
+\author{Markus Baumann}
+\email[Contact author: ]{markus.baumann@ifi.lmu.de}
+\affiliation{Chair of Mobile and Distributed Systems, Department of Computer Science,\\
+  Ludwig-Maximilians-Universit\"at M\"unchen, Munich, Germany}
+\date{November 25, 2026}
+\begin{abstract}
+\input{pure-s-abstract}
+\end{abstract}
+\maketitle
+
+\input{pure-s-introduction}
+\input{pure-s-evaluation}
+\input{pure-s-background}
+\input{pure-s-methodology}
+\input{pure-s-conclusion}
+\input{pure-s-experimental-section}
+\input{pure-s-related-work}
+\onecolumngrid
+\par\vspace{1.3\baselineskip}
+\pdfbookmark[1]{Technical appendix}{technical-appendix}
+\begin{center}\large\bfseries Technical appendix. The reduction and its observer\end{center}
+\vspace{.3\baselineskip}
+\twocolumngrid
+\input{pure-s-audit-appendix}
+\end{document}

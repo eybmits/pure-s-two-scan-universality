@@ -9,15 +9,13 @@ import sys
 import tempfile
 from graphlib import TopologicalSorter
 
+from check_external import THEOREMS
+
 ROOT = Path(__file__).resolve().parent
 PIN = "56a005855ea17e0b0958f73ec801ae140b0a1679"
 VERSION = "4.35.0"
 STANDARD_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
-ENDPOINTS = {
-    "TwoScans.Certified.universality",
-    "TwoScans.Prize.serial_universal_strings",
-    "TwoScans.OrbitHardness.complete_indexed",
-}
+ENDPOINTS = set(THEOREMS)
 
 
 def command(args, **kwargs):
@@ -94,14 +92,15 @@ def check(mathlib, lean_dir, fresh):
         if ENDPOINTS - seen:
             raise SystemExit(f"Missing axiom reports for {sorted(ENDPOINTS - seen)}.")
         if fresh:
-            print("Replaying Certified and its imported declarations in an empty kernel environment.", flush=True)
-            command([checker, "--fresh", "--verbose", "Certified"], cwd=build, env=env)
-        print(f"PASS: {len(modules)} source modules compiled and replayed; all three endpoints checked.",
+            for endpoint in ("Certified", "Chronology", "Majority"):
+                print(f"Fresh transitive kernel replay of {endpoint}.", flush=True)
+                command([checker, "--fresh", "--verbose", endpoint], cwd=build, env=env)
+        print(f"PASS: {len(modules)} source modules compiled and replayed; {len(ENDPOINTS)} endpoints checked.",
               flush=True)
 
 
 def examples():
-    for name in ("replay", "output", "reference", "guided", "prefix"):
+    for name in ("replay", "output", "reference", "guided", "prefix", "two_cell"):
         script = ROOT / "code" / f"pure_s_{name}.py"
         print(f"Running {script.name}", flush=True)
         command([sys.executable, "-B", str(script)], cwd=ROOT)
@@ -113,7 +112,7 @@ if __name__ == "__main__":
                         help="pinned Mathlib checkout with its dependency caches")
     parser.add_argument("--lean-bin", type=Path, help="directory containing lean and leanchecker")
     parser.add_argument("--examples", action="store_true", help="also run the small Python examples")
-    parser.add_argument("--fresh", action="store_true", help="also replay the main theorem and its complete import closure from an empty kernel environment")
+    parser.add_argument("--fresh", action="store_true", help="also replay the import closures of Certified, Chronology, and Majority in separate empty kernel environments")
     args = parser.parse_args()
     check(args.mathlib.resolve(), args.lean_bin.resolve() if args.lean_bin else None, args.fresh)
     if args.examples:

@@ -1,6 +1,14 @@
-\head{3. Why an accepted history gives the answer}
-A row represents a bounded tape segment. Each ordinary cell carries a symbol and the head cell also carries a state. A neighborhood of three cells determines each updated cell. Crossing the right wall removes the head permanently. Conversely, finitely many blank cells suffice for any particular halting run. Two tracks fold a two-sided tape at its origin, so this bounded-row model also simulates Mathlib's two-sided machine.
-\para{The finite tests}
-Each nonfinal record stores its neighbors, its current color $c$ and its proposed next color $d$. A word automaton checks adjacent records, row boundaries, the finite transition table and exactly one final row, at the end, containing a halted head. It recognizes the initial row as data followed by an end marker, blank padding and a fence. The data appear in reverse block order at the immutable end of the candidate. Injectivity of the fixed-width code, read back from that end, forces them to be precisely the data in the seed. The fast probe requires $v_k=c_k$. The delayed probe requires $v_{k+w}=d_k$ at every nonfinal site and absence of a color at every final site.
-\para{Why rows cannot be skipped}
-Write the current rows as one color string $C$, prefixing each row with a distinguished separator. Likewise form $N$ from the proposed successors of the nonfinal rows. The delayed comparisons give $\operatorname{drop}_w(C)=N$. If there are $r+1$ rows, $N$ has $r$ separators. For $r>0$ it begins at a separator, so the discarded prefix is exactly the first row with its separator. Splitting the suffix shows that every row is the local update of its immediate predecessor. The case $r=0$ reports the initial configuration itself. Induction now identifies the final row. Conversely, write a genuine halting run in a sufficiently wide rectangle and put its width in the header. Its color track extends the seed suffix. Sections 1 and 2 supply the candidate and a round in which the tests pass.
+\papersection{Encoding a computation history}\label{sec:history}
+An existence proof using Mathlib's universal evaluator supplies one tape machine with a finite transition table. We fix this table for all programs and inputs. The encoder is defined for any such table. We fold the tape at the origin into two tracks. Each row marks the head and its state. Each nonfinal cell record gives a cell, its neighbors and its proposed update. A word automaton checks the overlapping triples against the fixed table and requires a halted head in the last row.
+
+Prefix each row with a separator $\#$ and concatenate the rows to form $C$. Form $N$ from the proposed successor rows in the same way. With $W$ sites per row including the separator, consistency requires $\dropop_W(C)=N$, where $\dropop_W$ deletes the first $W$ symbols. For two cells per row, the comparison is
+\[
+\mathcopy{C: \# a b, \# c d, \# e f. N: \# a\string^+ b\string^+, \# c\string^+ d\string^+. (W = 3).}{%
+\begin{array}{c@{\qquad}l@{\qquad}l@{\qquad}l}
+ C & \#\,a\,b & \#\,c\,d & \#\,e\,f \\
+ N &            & \#\,a^+\,b^+ & \#\,c^+\,d^+
+\end{array}\qquad (W=3).}
+\]
+Here $a^+$ is the update proposed by the record for $a$. The next row records $c$ in that cell. Section~\ref{sec:comparison} shows how the tree checks whether $a^+=c$.
+
+If $C$ has $r+1$ rows, $N$ has $r$ separators. For $r>0$, $N$ begins at a separator, so the shift removes exactly one row. Splitting the common suffix at its separators identifies each remaining row with the update of its predecessor. The local update preserves row length, so all these rows have equal width. For $r=0$ the initial row is already final and $N$ is empty. Any $W$ at least as large as the encoded row passes the shift test and gives that same final row.

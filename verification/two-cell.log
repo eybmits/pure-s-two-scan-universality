@@ -1,0 +1,6 @@
+valid: round 364 | static=pass | fast=pass | delayed=pass
+  row 0: R0 1
+  row 1: 1 H1
+  output tape: 11
+forged: round 362 | static=pass | fast=pass | delayed=fail
+  rejected

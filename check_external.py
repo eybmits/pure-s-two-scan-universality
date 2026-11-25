@@ -1,4 +1,4 @@
-"""Recheck the three main theorems and their dependencies with the external Rust kernel Nanoda."""
+"""Recheck the public theorems and their dependencies with the external Rust kernel Nanoda."""
 
 import argparse
 import hashlib
@@ -12,10 +12,17 @@ import tempfile
 
 PROJECT = Path(__file__).resolve().parent
 THEOREMS = {
-    "Certified": "TwoScans.Certified.universality",
-    "SerialOutput": "TwoScans.Prize.serial_universal_strings",
-    "OrbitHardness": "TwoScans.OrbitHardness.complete_indexed",
+    "TwoScans.Certified.universality": "Certified",
+    "TwoScans.Prize.serial_universal_strings": "SerialOutput",
+    "TwoScans.OrbitHardness.complete_indexed": "OrbitHardness",
+    "TwoScans.TraceReadout.regular_detection": "TraceReadout",
+    "TwoScans.TraceSelect.readAt_sound": "TraceSelect",
+    "TwoScans.TraceSelect.readAt_cofinal": "TraceSelect",
+    "TwoScans.Chronology.trajectory": "Chronology",
+    "TwoScans.Chronology.linear_seed": "Chronology",
+    "TwoScans.Majority.universal_strings": "Majority",
 }
+MODULES = tuple(dict.fromkeys(THEOREMS.values()))
 AXIOMS = ["propext", "Classical.choice", "Quot.sound"]
 
 
@@ -24,7 +31,7 @@ def check(project, lake, exporter, checker):
         return subprocess.run([lake, *args], cwd=project, check=True, **kwargs)
 
     try:
-        run(["--quiet", "--reconfigure", "build", *["+" + mod for mod in THEOREMS]],
+        run(["--quiet", "--reconfigure", "build", *["+" + mod for mod in MODULES]],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     except subprocess.CalledProcessError as error:
         print(error.stdout, file=sys.stderr)
@@ -37,14 +44,14 @@ def check(project, lake, exporter, checker):
         statements = folder / "statements.txt"
         statements.touch()
         with exported.open("wb") as proof:
-            run(["env", exporter, *THEOREMS, "--", *THEOREMS.values()], stdout=proof)
+            run(["env", exporter, *MODULES, "--", *THEOREMS], stdout=proof)
         config.write_text(json.dumps({
             "export_file_path": str(exported),
             "permitted_axioms": AXIOMS,
             "unpermitted_axiom_hard_error": True,
             "nat_extension": True,
             "string_extension": True,
-            "pp_declars": list(THEOREMS.values()),
+            "pp_declars": list(THEOREMS),
             "pp_output_path": str(statements),
             "pp_options": {"proofs": False, "width": 100},
             "print_success_message": True,
@@ -52,7 +59,7 @@ def check(project, lake, exporter, checker):
         print(version, flush=True)
         run(["env", checker, str(config)])
         found = set(re.findall(r"^theorem\s+(\S+)\s*:", statements.read_text(encoding="utf-8"), re.M))
-        expected = set(THEOREMS.values())
+        expected = set(THEOREMS)
         if found != expected:
             raise SystemExit(f"Unexpected theorems returned by the checker: {sorted(found)}")
         digest = hashlib.sha256()
@@ -60,7 +67,7 @@ def check(project, lake, exporter, checker):
             for chunk in iter(lambda: proof.read(1 << 20), b""):
                 digest.update(chunk)
         print(f"Proof export SHA-256 {digest.hexdigest()} ({exported.stat().st_size} bytes)")
-        print("Certified theorem names:", *THEOREMS.values(), sep="\n  ")
+        print("Certified theorem names:", *THEOREMS, sep="\n  ")
         print("Axiom allow-list:", ", ".join(AXIOMS))
 
 
