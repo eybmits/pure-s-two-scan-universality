@@ -6,7 +6,7 @@ Under a fixed parallel innermost strategy, a term built from the S combinator an
 
 ## Direct emulation
 
-The [submission folder](direct-emulation/) contains the three files that belong together.
+The [complete submission ZIP](direct-emulation/Direct_S_Emulation_Submission.zip) contains the manuscript, proof archive and cover letter. Each file is also available separately below.
 
 | File | Contents |
 | --- | --- |
