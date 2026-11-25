@@ -64,4 +64,4 @@ theorem complete_indexed :
   exact ⟨encodePost P,fun t => ∃ y, readPost M t = some y,h⟩
 
 end TwoScans.OrbitHardness
-#print axioms TwoScans.OrbitHardness.complete_indexed
+#print axioms TwoScans.OrbitHardness.concrete_indexed

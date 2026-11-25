@@ -1,11 +1,11 @@
-\papersection{Generating candidate histories}
+\papersection{Generating candidate histories}\label{sec:generation}
 The generator must extend each word by either letter and launch a scan of the word already present, all on the same orbit. Each launch must keep its word attached to its own scan. Otherwise a scan of one history could certify another.
 
 \lead{Word generation}
 Use $A=SS$ and $B=SA$ as letters. The generator $g$ appears at the end of every wrapped word. We set $\wrap{\varepsilon}=Sg$ and $\wrap{zw}=z\wrap{w}$ for $z\in\{A,B\}$. The seed $g\wrap{\sigma}$ stores the program and input in the suffix $\sigma$. Given $u=\wrap{w}$, the call $gu$ exposes three subtrees over successive rounds. The branches $R_Au$ and $R_Bu$ lead to new calls $g\wrap{Aw}$ and $g\wrap{Bw}$. The third branch, $Qu$, launches the scan of $w$. Induction on the number of prepended letters gives a launch for every word ending in $\sigma$. The appendix gives the terms and the reductions for one extension.
 
 \lead{Packet recognition}
-The following contraction launches a \emph{packet}.
+A \emph{packet} begins with the contraction
 \[
 \mathcopy{Q\unichar{10216}w\unichar{10217} \unichar{8594} (T\unichar{10216}w\unichar{10217})(L\unichar{10216}w\unichar{10217})}{%
  Q\wrap{w}\step(T\wrap{w})(L\wrap{w})}

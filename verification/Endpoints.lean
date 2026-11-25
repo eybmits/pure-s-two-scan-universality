@@ -15,11 +15,11 @@ set_option pp.deepTerms true
 #check TwoScans.Certified.universality
 #print axioms TwoScans.Certified.universality
 
-#check TwoScans.Prize.serial_universal_strings
-#print axioms TwoScans.Prize.serial_universal_strings
+#check TwoScans.Prize.serial_universal_witness
+#print axioms TwoScans.Prize.serial_universal_witness
 
-#check TwoScans.OrbitHardness.complete_indexed
-#print axioms TwoScans.OrbitHardness.complete_indexed
+#check TwoScans.OrbitHardness.concrete_indexed
+#print axioms TwoScans.OrbitHardness.concrete_indexed
 
 #check TwoScans.TraceReadout.regular_detection
 #print axioms TwoScans.TraceReadout.regular_detection
@@ -36,5 +36,5 @@ set_option pp.deepTerms true
 #check TwoScans.Chronology.linear_seed
 #print axioms TwoScans.Chronology.linear_seed
 
-#check TwoScans.Majority.universal_strings
-#print axioms TwoScans.Majority.universal_strings
+#check TwoScans.Majority.universal_witness
+#print axioms TwoScans.Majority.universal_witness

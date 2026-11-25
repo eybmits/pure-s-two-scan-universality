@@ -13,14 +13,14 @@ import tempfile
 PROJECT = Path(__file__).resolve().parent
 THEOREMS = {
     "TwoScans.Certified.universality": "Certified",
-    "TwoScans.Prize.serial_universal_strings": "SerialOutput",
-    "TwoScans.OrbitHardness.complete_indexed": "OrbitHardness",
+    "TwoScans.Prize.serial_universal_witness": "SerialOutput",
+    "TwoScans.OrbitHardness.concrete_indexed": "OrbitHardness",
     "TwoScans.TraceReadout.regular_detection": "TraceReadout",
     "TwoScans.TraceSelect.readAt_sound": "TraceSelect",
     "TwoScans.TraceSelect.readAt_cofinal": "TraceSelect",
     "TwoScans.Chronology.trajectory": "Chronology",
     "TwoScans.Chronology.linear_seed": "Chronology",
-    "TwoScans.Majority.universal_strings": "Majority",
+    "TwoScans.Majority.universal_witness": "Majority",
 }
 MODULES = tuple(dict.fromkeys(THEOREMS.values()))
 AXIOMS = ["propext", "Classical.choice", "Quot.sound"]

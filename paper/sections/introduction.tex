@@ -1,10 +1,10 @@
 \papersection{The evaluation path and the main result}
-Wolfram proposed reading a computed answer from a growing $S$-tree with a bounded detector and decoder~\cite{wolfram2020}. His prize announcement contrasts multiway emulation with a weaker alternative in which some evaluation order performs any given deterministic computation~\cite{wolfram2021}. We establish the latter using one schedule and one observer for every program. The tree generates candidate histories of one universal machine. If a cell record predicts $a^+$, the next row must contain $a^+$ in that cell. Two scans driven by $S$ bring the cells together across any row width. The observer checks their values against the machine's fixed transition rule.
+Wolfram proposed reading a computed answer from a growing $S$-tree with a bounded detector and decoder~\cite{wolfram2020}. His prize announcement contrasts multiway emulation with a weaker alternative in which some evaluation order performs any given deterministic computation~\cite{wolfram2021}. One schedule and one observer suffice for every program. The tree enumerates candidate histories. If a cell predicts $a^+$, the next row must contain $a^+$ at the same position. Two scans driven by $S$ bring these cells together across any row width. Only the observer consults the transition rules of the fixed universal machine.
 
 A ground $S$-term is a finite binary application tree with $S$ at every leaf. Application associates to the left. At the start of each round, mark all innermost redexes. From left to right, contract each marked $Sxyz$ to $(xz)(yz)$. These subtrees are disjoint. New redexes wait until the next round. Each contraction is a legal $S$ step, and the sweep ends at the parallel innermost reduct $\pi(t)$. Set $\pi^0(t)=t$ and $\pi^{n+1}(t)=\pi(\pi^n(t))$.
 
 \begin{theorem}\label{thm:main}
-There are a fixed encoder $e$ and a fixed partial decoder $D$ such that, for every partial computable function $f$ on binary strings, some program $p$ satisfies, for all strings $x,y$,
+For one fixed universal machine, take the block encoder $e$ of Sections~\ref{sec:history}--\ref{sec:generation} and the decoder $D$ of Section~\ref{sec:comparison}. For every partial computable function $f$ on binary strings, some program $p$ satisfies, for all strings $x,y$,
 \[
  \mathcopy{f(x) = y \unichar{8660} \unichar{8707}n \unichar{8805} 0, D(\unichar{960}\string^n(e(p,x))) = y.}{f(x)=y \quad\Longleftrightarrow\quad \exists n\geq 0\quad D(\pi^n(e(p,x)))=y.}
 \]
@@ -13,17 +13,17 @@ The seed has $O(1+|p|+|x|)$ leaves. On all ground trees, $\operatorname{dom}(D)$
 
 Only the seed changes between a copy program and an infinite loop. The same reader reports the input for the first and stays silent for the second. Theorem~\ref{thm:main} samples at round boundaries. Can we trust every output if we inspect the tree after each individual $S$ contraction?
 
-\begin{corollary}[Output after individual contractions]\label{cor:majority}
-Under the same left-to-right sweep, a linear-size seed, a regular detector and a fixed decoder realize the input--output equivalence of Theorem~\ref{thm:main} when the tree is observed after each individual contraction. Every detection returns the correct output.
-\end{corollary}
-\emph{Proof.} Use three copies of the seed. The schedule sweeps one copy at a time, leaving at least two at round boundaries. Accept when all three detectors pass. The two boundary copies then report the same correct string, even if they are at different rounds. Return the first output if it agrees with the second, and the third otherwise. Conversely, every passing parallel round is reached with all three copies equal.\hfill$\square$
+\begin{samepage}\begin{corollary}[Output after individual contractions]\label{cor:majority}
+Use a linear-size seed containing three copies of $e(p,x)$ under the same sweep. At the seed and after each individual contraction, test the domain of $D$ on all three copies. This regular detector eventually accepts exactly when $f(x)$ is defined. At each detection the majority of the three decoded strings equals $f(x)$.
+\end{corollary}\end{samepage}
+\emph{Proof.} The schedule sweeps one copy at a time. At least two are at round boundaries, where Theorem~\ref{thm:main} gives the same correct string whenever both report. Conversely, every passing round is reached with all three copies equal.\hfill$\square$
 
-The three-copy decoder compares strings of unbounded length. The regular-preimage assertion of Theorem~\ref{thm:main} concerns its original decoder. For each regular output language $L$, one fixed bottom-up automaton tests whether the output belongs to $L$. On any tree the decoder chooses the first candidate in preorder that passes the tests.
+The majority decoder compares strings of unbounded length. The parallel decoder in Theorem~\ref{thm:main} selects the first passing packet in preorder. For each regular language $L$, its output can be tested for membership in $L$ by a finite tree automaton. The two-copy first-hit version also preserves these tests (Section~\ref{sec:formal}).
 
 \lead{Why enumeration alone falls short}
 Consider a machine that preserves its tape and halts in one step. Its first row can contain any of $2^k$ tapes of length $k$. Each has a different matching final row. An automaton reading those rows in sequence would have to distinguish all $2^k$ possibilities. Our scans present corresponding cells in the same snapshot. The appendix gives the finite-state decision procedure for a bare word enumerator and for a pure copier.
 
 \lead{Scope and prior work}
-The observer verifies whole candidate histories. The tree does not compute each configuration from its predecessor. A clocked reader recovers the verified configurations in order (Section~\ref{sec:chronology}). Ground $S$ normalization is decidable~\cite{waldmann}. We read outputs at finite points on the specified path. The theorem gives no guarantee about persistence, time to first detection or other evaluation orders.
+Waldmann proved that existence of a normal form is decidable for ground $S$-terms~\cite{waldmann}. Our detector asks whether a finite snapshot of a continuing run contains a valid halting history. Vatan proves that $S$ alone cannot express the argument-erasing combinator $K$~\cite{vatan}. Reading the output string requires no $S$ contraction that erases an argument. The tree generates whole histories without stepping the machine from one configuration to its successor. Section~\ref{sec:chronology} recovers the verified configurations in order.
 
-The earlier project coordinated by Filin obtains ordered checkpoints with a deterministic root-restarted controller, fixed for a universal cyclic-tag program~\cite[Theorem~1R and Corollary~2.2]{filin}. Its tree walk selects each redex. Our evaluator sweeps the innermost sites present at the start of each round.
+The earlier project coordinated by Filin gives ordered checkpoints under a root-restarted controller for a universal cyclic-tag program~\cite[Theorem~1R and Corollary~2.2]{filin}. Its controlled path also has a regular halting detector (Section~5.4 of that work). Its separate Theorem~5 enumerates persistent candidates under unrestricted reduction and checks their histories with a tableau observer. Our fixed innermost sweep itself aligns the cells for the finite tree automaton.

@@ -19,24 +19,39 @@ TwoScans.Certified.universality :
                           Option.some y) ↔
                       y ∈ f x
 'TwoScans.Certified.universality' depends on axioms: [propext, Classical.choice, Quot.sound]
-TwoScans.Prize.serial_universal_strings :
-  ∃ (E : List Bool → List Bool → TwoScans.Term) (D : TwoScans.Term → Option (List Bool)) (a : ℕ) (b : ℕ),
-    (TwoScans.Automata.Regular fun (t : TwoScans.Term) => ∃ (y : List Bool), D t = Option.some y) ∧
-      (∀ (p x : List Bool), TwoScans.size (E p x) ≤ a + b * (p.length + x.length)) ∧
-        ∀ (f : List Bool →. List Bool),
-          Partrec f →
-            ∃ (p : List Bool),
-              ∀ (x y : List Bool), (∃ (n : ℕ), TwoScans.SerialReadout.readFirst D (E p x) n = Option.some y) ↔ y ∈ f x
-'TwoScans.Prize.serial_universal_strings' depends on axioms: [propext, Classical.choice, Quot.sound]
-TwoScans.OrbitHardness.complete_indexed :
-  ∃ (E : TwoScans.UniversalS.Code → ℕ → TwoScans.Term) (O : TwoScans.Term → Prop),
+TwoScans.Prize.serial_universal_witness :
+  ∃ (P : Type) (fp : TwoScans.Automata.FinStates P) (dp : DecidableEq P) (st : Inhabited P) (M :
+    Turing.TM0.Machine TwoScans.UniversalS.Cell P) (a : ℕ) (b : ℕ),
+    have E := TwoScans.Prize.encodeBits P;
+    have D := TwoScans.Prize.readStrings M;
+    have start := fun (p x : List Bool) => SerialTableau.pack (E p x) (E p x);
+    (TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
+        ∃ (y : List Bool), TwoScans.SerialReadout.double D t = Option.some y) ∧
+      (∀ (q : List Bool → Bool),
+          TwoScans.WordRead.Attr q →
+            TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
+              ∃ (y : List Bool), TwoScans.SerialReadout.double D t = Option.some y ∧ q y = Bool.true) ∧
+        (∀ (p x : List Bool), TwoScans.size (start p x) ≤ a + b * (p.length + x.length)) ∧
+          ∀ (f : List Bool →. List Bool),
+            Partrec f →
+              ∃ (p : List Bool),
+                ∀ (x y : List Bool),
+                  (∃ (n : ℕ),
+                      TwoScans.SerialReadout.readFirst (TwoScans.SerialReadout.double D) (start p x) n =
+                        Option.some y) ↔
+                    y ∈ f x
+'TwoScans.Prize.serial_universal_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+TwoScans.OrbitHardness.concrete_indexed :
+  ∃ (P : Type) (fp : TwoScans.Automata.FinStates P) (dp : DecidableEq P) (st : Inhabited P) (M :
+    Turing.TM0.Machine TwoScans.UniversalS.Cell P),
+    have O := fun (t : TwoScans.Term) => ∃ (out : List Bool), TwoScans.UniversalS.readPost M t = Option.some out;
+    have ev := TwoScans.OrbitHardness.Hit (TwoScans.UniversalS.encodePost P) O;
     TwoScans.Automata.Regular O ∧
-      REPred (TwoScans.OrbitHardness.Hit E O) ∧
-        ¬ComputablePred (TwoScans.OrbitHardness.Hit E O) ∧
-          (∀ (r : ℕ → Prop), REPred r → r ≤₀ TwoScans.OrbitHardness.Hit E O) ∧
-            ∀ (c : TwoScans.UniversalS.Code) (x : ℕ),
-              TwoScans.OrbitHardness.Hit E O (c, x) ↔ (Nat.Partrec.Code.eval c x).Dom
-'TwoScans.OrbitHardness.complete_indexed' depends on axioms: [propext, Classical.choice, Quot.sound]
+      REPred ev ∧
+        ¬ComputablePred ev ∧
+          (∀ (r : ℕ → Prop), REPred r → r ≤₀ ev) ∧
+            ∀ (c : TwoScans.UniversalS.Code) (x : ℕ), ev (c, x) ↔ (Nat.Partrec.Code.eval c x).Dom
+'TwoScans.OrbitHardness.concrete_indexed' depends on axioms: [propext, Classical.choice, Quot.sound]
 TwoScans.TraceReadout.regular_detection {Q Γ : Type} [DecidableEq Q] [DecidableEq Γ] [TwoScans.Automata.FinStates Q]
   [TwoScans.Automata.FinStates Γ] (δ : TwoScans.Tableau.OneTape.Table Q Γ) (blank : Γ) (accept : Q → Bool) :
   TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
@@ -87,13 +102,20 @@ TwoScans.Chronology.linear_seed {Q Γ : Type} [DecidableEq Q] [DecidableEq Γ] [
     ∀ (c : TwoScans.Tableau.OneTape.Cfg Q Γ),
       TwoScans.size (TwoScans.Chronology.seed blank c) ≤ a + b * (c.left.length + 1 + c.right.length)
 'TwoScans.Chronology.linear_seed' depends on axioms: [propext, Quot.sound]
-TwoScans.Majority.universal_strings :
-  ∃ (E : List Bool → List Bool → TwoScans.Term) (D : TwoScans.Term → Option (List Bool)) (a : ℕ) (b : ℕ),
-    (TwoScans.Automata.Regular fun (t : TwoScans.Term) => ∃ (y : List Bool), D t = Option.some y) ∧
-      (∀ (p x : List Bool), TwoScans.size (E p x) ≤ a + b * (p.length + x.length)) ∧
+TwoScans.Majority.universal_witness :
+  ∃ (P : Type) (fp : TwoScans.Automata.FinStates P) (dp : DecidableEq P) (st : Inhabited P) (M :
+    Turing.TM0.Machine TwoScans.UniversalS.Cell P) (a : ℕ) (b : ℕ),
+    have E := TwoScans.Prize.encodeBits P;
+    have D := TwoScans.Prize.readStrings M;
+    have start := fun (p x : List Bool) => TwoScans.Majority.triple (E p x) (E p x) (E p x);
+    (TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
+        ∃ (y : List Bool), TwoScans.Majority.read D t = Option.some y) ∧
+      (∀ (p x : List Bool), TwoScans.size (start p x) ≤ a + b * (p.length + x.length)) ∧
         ∀ (f : List Bool →. List Bool),
           Partrec f →
             ∃ (p : List Bool),
               ∀ (x y : List Bool),
-                (∃ (n : ℕ), ∃ t ∈ TwoScans.SerialReadout.states (E p x) n, D t = Option.some y) ↔ y ∈ f x
-'TwoScans.Majority.universal_strings' depends on axioms: [propext, Classical.choice, Quot.sound]
+                (∃ (n : ℕ),
+                    ∃ t ∈ TwoScans.SerialReadout.states (start p x) n, TwoScans.Majority.read D t = Option.some y) ↔
+                  y ∈ f x
+'TwoScans.Majority.universal_witness' depends on axioms: [propext, Classical.choice, Quot.sound]

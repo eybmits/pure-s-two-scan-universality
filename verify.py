@@ -92,7 +92,7 @@ def check(mathlib, lean_dir, fresh):
         if ENDPOINTS - seen:
             raise SystemExit(f"Missing axiom reports for {sorted(ENDPOINTS - seen)}.")
         if fresh:
-            for endpoint in ("Certified", "Chronology", "Majority"):
+            for endpoint in ("Certified", "Chronology", "Majority", "SerialOutput", "OrbitHardness"):
                 print(f"Fresh transitive kernel replay of {endpoint}.", flush=True)
                 command([checker, "--fresh", "--verbose", endpoint], cwd=build, env=env)
         print(f"PASS: {len(modules)} source modules compiled and replayed; {len(ENDPOINTS)} endpoints checked.",
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                         help="pinned Mathlib checkout with its dependency caches")
     parser.add_argument("--lean-bin", type=Path, help="directory containing lean and leanchecker")
     parser.add_argument("--examples", action="store_true", help="also run the small Python examples")
-    parser.add_argument("--fresh", action="store_true", help="also replay the import closures of Certified, Chronology, and Majority in separate empty kernel environments")
+    parser.add_argument("--fresh", action="store_true", help="also replay the import closures of Certified, Chronology, Majority, SerialOutput, and OrbitHardness in separate empty kernel environments")
     args = parser.parse_args()
     check(args.mathlib.resolve(), args.lean_bin.resolve() if args.lean_bin else None, args.fresh)
     if args.examples:

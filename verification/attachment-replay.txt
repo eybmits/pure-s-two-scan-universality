@@ -1,7 +1,7 @@
-Independent replays of the archived source bundle
+Clean replays of the archived source bundle
 
 Archive: paper/pure-s-lean-proof.zip
-SHA-256: 73ec23d763a91dd7744e8c95466538c502b645afa74069a979000c27c8863f62
+SHA-256: c888776e05791728e1dd47dca6afde2b229f7237c4cd9b21d5d2e0dddb97201a
 
 The exact ZIP was extracted into three new directories. Each started with
 an empty project build directory and reused only the pinned external
@@ -14,3 +14,5 @@ The second rebuilt and replayed 81 local modules and completed six
 examples. The third performed a fresh Lake build and Nanoda accepted
 the nine exported theorems. All commands exited with status zero. The
 type, kernel, demo, and Nanoda transcripts matched these final runs byte for byte.
+Lean also checked the cited lemmas and three independently stated theorem
+signatures against the extracted build (verification/ReferencedLemmas.lean).

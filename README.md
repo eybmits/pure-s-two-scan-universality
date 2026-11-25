@@ -4,17 +4,13 @@
 
 Wolfram proposed reading a computed answer from a growing S-tree with a bounded observer. This construction realizes that formulation along a fixed evaluation path for every partial computable function on binary strings. Changing programs changes only the seed. Under parallel innermost reduction the tree generates candidate histories of one fixed universal machine. Two scans driven by the S rule align corresponding cells in successive rows at any row width. A fixed finite tree automaton checks the machine’s local transition rule on those cells and detects a valid halting history. A fixed decoder reads the output from its last row.
 
-## Submission files
-
-The [submission folder](submission/) contains the [manuscript](submission/Pure_S_Universality.pdf), [cover letter](submission/Pure_S_Submission.txt) and [reproducibility archive](submission/Pure_S_Universality_Reproducibility.zip). Run `shasum -a 256 -c SHA256SUMS` from the repository root to verify all three files.
-
-The [LaTeX source](paper/main.tex) builds with `latexmk -cd -pdf paper/main.tex`. The [proof audit](TCB_AUDIT.md) gives the Lean and Nanoda replay commands.
+In the Git checkout, `submission/Pure_S_Universality_v1.2.0.zip` is the complete submission bundle. The cover letter, the submission PDF and `Pure_S_Universality_Reproducibility.zip` are also available separately in the same directory. Run `shasum -a 256 -c SHA256SUMS` at the checkout root to verify the bundle and all three files.
 
 ## What Lean proves
 
 For every partial computable function on binary strings there is a finite program string `p`. For every input `x` and output `y`, reduction of the ground seed for `p,x` reaches a snapshot decoding to `some y` exactly when the function returns `y` at `x`. This includes empty outputs and excludes spurious hits on divergent inputs. The same encoder, detector and decoder serve every program.
 
-The primary theorem uses maximal parallel innermost rounds of the rule `S x y z → (x z) (y z)`. Seed size is linear in the input and program lengths. With fixed finite tables, encoding takes linear time in the combined program and input length, plus constant overhead. On an expanded N-node tree, detection and extraction can each run in O(N) time. One bottom-up pass marks passing packets, a single path selects one, and a fixed number of scans reads its word and row. The decoder emits at most two bits per S leaf in a snapshot. For every regular output language, its inverse image under this decoder is a regular tree language, including on malformed trees. A second theorem implements first-hit observation along a fixed left-to-right order of individual contractions. Its seed contains two copies. After each contraction, a finite tree automaton tests whether both pass. At the first such step the decoder returns the output of the left copy. A three-copy variant accepts when all three detectors pass. At any single-contraction snapshot, at least two copies are at parallel round boundaries. Their outputs agree whenever all three pass, so reading the majority gives the correct string at every detection. On arbitrary trees the detection predicate is regular. The regular-preimage theorem above concerns the original parallel decoder.
+The primary theorem uses maximal parallel innermost rounds of the rule `S x y z → (x z) (y z)`. Seed size is linear in the input and program lengths. With fixed finite tables, encoding takes linear time in the combined program and input length, plus constant overhead. On an expanded N-node tree, detection and extraction can each run in O(N) time. One bottom-up pass marks passing packets, a single path selects one, and a fixed number of scans reads its word and row. The decoder emits at most two bits per S leaf in a snapshot. For every regular output language, its inverse image under this decoder is a regular tree language, including on malformed trees. A second theorem uses two copies of this seed. A fixed left-to-right sweep visits each original innermost site once per round. After each individual contraction, a finite tree automaton tests whether both copies pass. At the first such step the decoder returns the left copy’s output. On every tree, each regular test on that snapshot output also has a regular preimage. With three copies, every detection during the sweep returns the correct output. At least two copies are at round boundaries, so their answers agree whenever all three pass. The three-copy detector is finite-state and its decoder compares output strings.
 
 A fixed finite tree automaton detects whether a snapshot contains a passing prefix packet, including on a run that continues forever. For a fixed deterministic one-tape transition table, every configuration returned by the indexed reader agrees with the indicated machine step up to blank padding. For each finite horizon, arbitrarily late parallel rounds contain a single history from which the reader recovers all rows through that horizon.
 
@@ -24,7 +20,7 @@ The proof obtains one finite universal transition table from Mathlib's universal
 
 The paper also carries a PDF attachment, `pure-s-lean-proof.zip`, containing the proof and replay instructions. The same attachment is in `paper/` so the PDF can be rebuilt from this package. This package contains 81 modules, including seven for chronological readout and one for the three-copy construction.
 
-The [formal proof audit](TCB_AUDIT.md) maps the semantics to source lines, gives all nine Lean statements and records the two independent verification commands.
+The [formal proof audit](TCB_AUDIT.md) prints all nine Lean statements, links their definitions and gives the replay commands. The serial statements name the two- and three-copy seeds and their readers. The indexed hardness statement names the program-index encoder and the finite-machine reporter that defines its detector. To check the three signatures directly, build the project and run `lake env lean verification/ReferencedLemmas.lean`. The [three Lean examples](verification/ReferencedLemmas.lean) spell out the required operations in their types.
 
 ## Reproduce the result
 
@@ -43,7 +39,7 @@ To check all nine statements with Nanoda, the independent Rust proof checker, ru
 python3 check_external.py
 ```
 
-For editor use, `lake build` builds the entire project. With an existing cached checkout, run `python3 verify.py --mathlib PATH_TO_MATHLIB --lean-bin PATH_TO_LEAN_BIN`. Add `--fresh` to replay the main theorem and all imported declarations in an empty kernel environment. Add `--examples` to run the Python demonstrations too. With LaTeX installed, `latexmk -pdf -cd paper/main.tex` rebuilds the paper.
+For editor use, `lake build` builds the entire project. With an existing cached checkout, run `python3 verify.py --mathlib PATH_TO_MATHLIB --lean-bin PATH_TO_LEAN_BIN`. Add `--fresh` to replay the full import closures of `Certified`, `Chronology`, `Majority`, `SerialOutput` and `OrbitHardness`, each in an empty kernel environment. Add `--examples` to run the Python demonstrations too. With LaTeX installed, `latexmk -pdf -cd paper/main.tex` rebuilds the paper.
 
 ## Run the two-cell example
 
@@ -54,9 +50,9 @@ Run `python3 code/pure_s_two_cell.py` from the package directory. Starting at th
 | Result | Lean declaration |
 | --- | --- |
 | Universal binary-string computation under parallel innermost reduction | `TwoScans.Certified.universality` |
-| Universal binary-string computation under serial first detection | `TwoScans.Prize.serial_universal_strings` |
-| Sound output at every individual serialized detection | `TwoScans.Majority.universal_strings` |
-| Many-one completeness of indexed reachability | `TwoScans.OrbitHardness.complete_indexed` |
+| Two-copy first detection and regular output tests on any snapshot | `TwoScans.Prize.serial_universal_witness` |
+| Sound three-copy output at every detection on the serial sweep | `TwoScans.Majority.universal_witness` |
+| Many-one completeness for the program-index encoder and its fixed detector | `TwoScans.OrbitHardness.concrete_indexed` |
 | Regular detection of a passing computation packet | `TwoScans.TraceReadout.regular_detection` |
 | Soundness of the indexed row reader | `TwoScans.TraceSelect.readAt_sound` |
 | Recovery of every finite prefix in arbitrarily late parallel rounds | `TwoScans.TraceSelect.readAt_cofinal` |

@@ -25,7 +25,11 @@ a table $F:H^2\to H$ and a set of accepting states.
 Its state at $fa$ is $F(h(f),h(a))$. For words, \decl{WordRead.Attr}
 uses a finite state, a right-to-left letter transition and a final output
 map. For a Boolean output this defines a regular language.
-Fix such a language $L$. For each local packet the automaton tests both
+At a candidate root the detector requires the marker and a well-formed
+word, legal row records with a final halt, and both calibrated scan tests.
+Every part is a fixed finite-state test. On a seed orbit the origin
+argument below ties the scanned data to this same word.
+Fix a regular output language $L$. For each local packet the automaton tests both
 whether the packet passes and whether its output belongs to $L$.
 It carries one of three outcomes upwards: no hit, hit outside $L$, or hit
 in $L$. At each node take the first hit among the node, its left subtree
@@ -45,7 +49,24 @@ The terms $R_z$ prepend a letter, $L$ starts the scanner, and $T$ marks the word
  g&=SR_A(SR_B(SQU)).
 \end{alignedat}}
 \]
-For $u=\wrap{w}$ and $x=zu$, two rounds take $R_zu$ to $(x(Su))x$. Once $x(Su)$ is normal, follow its application to $x$ down the wrappers of $x$. An $A$ wrapper exposes the continuation on the right and a $B$ wrapper exposes it on the left. The base exposes $gx$, the next generator call.
+For $u=\wrap{w}$ and $x=zu$, two rounds give
+$R_zu\step((SzS)u)x\step(x(Su))x$. The last copy of $x$ is normal,
+so the left child completes its preparation. Follow its application
+to $x$ down the wrappers of $x$. An $A$ wrapper exposes the
+continuation on the right and a $B$ wrapper on the left. The base
+exposes $gx$, the generator call for $zw$.
+
+Why do these calls occur on one orbit? While a subtree is reducible,
+each ancestor has a reducible child, so the next parallel round
+acts inside that subtree. If the subtree becomes normal, all its
+later local values have already appeared. Thus any subtree visible
+in a local run is also visible in the surrounding run. Starting at
+$gu$, three successive contractions down the right branch expose
+$R_Au$, $R_Bu$ and $Qu$ in turn. To launch $Q\wrap{zd\sigma}$,
+first reach $g\wrap{d\sigma}$ by induction, then follow its $R_z$
+branch to the next call and take the $Q$ branch there.
+The empty prefix takes the $Q$ branch immediately
+(\decl{Generation.everyExtension}).
 
 To see why $L\wrap{w}$ stays active, first take any normal term $u$. Put $k=Su(SEu)$, $z_0=Sk$ and $z_{j+1}=Az_j$. The subtree $Uu$ exposes $kz_0$. From $kz_j$, the $E$ branch exposes $(z_{j+1}z_{j+1})z_{j+1}$, whose $A$ wrappers lead to $kz_{j+1}$. The growing $z_j$ therefore occur inside the orbit of $gu$, so it always has a redex. The descent in $L\wrap{w}$ exposes such a call, with $u=(S\wrap{w})(S\wrap{w})$.
 
@@ -72,8 +93,11 @@ in a contraction only from $STLz$, paired immediately with $Lz$.
 Here $z$ is normal. If $z=u_w$, its copy of $u_\sigma$ lies on the
 right-hand word spine, since every side branch and the base $g$ are
 smaller. Hence $w$ ends in $\sigma$. If $z$ is a nonword it stays one.
-Induction on rounds now classifies every tagged occurrence, including
-copies inside larger packets. This provenance argument requires the seed.
+These are the two induction cases for a tagged occurrence. A newly
+formed word tag has the launch body $Lz$ at age zero. A surviving
+packet has a normal left side and an active right side, so its right
+side advances by one round. Copies inherit the same word and age.
+This classifies nested packets as well (\decl{Shell.shell_orbit_iff}).
 
 \lead{Why a probe cannot read a false operand}
 Put $u=u_w$ and $v=(Su)(Su)$. The probe recognizes the shape
@@ -146,4 +170,8 @@ trees are exactly $K[u_{d\sigma},\ldots,u_{d\sigma}]$ for all prefixes
 $d$, with a fixed finite context $K$ and a fixed number of copies.
 Start at $h(u_\sigma)$ and close under $q\copymapsto F(h(A),q)$ and
 $q\copymapsto F(h(B),q)$. Each reachable $q$ gives the root state of $K$
-by inserting $q$ at every hole. This decides whether the enumerator reaches the detector. In our construction the scans supply the variable shift, and \decl{OrbitHardness.complete_indexed} proves many-one completeness for the resulting program--input hit problem.
+by inserting $q$ at every hole. This decides reachability for every
+enumerator of this form and every finite tree automaton. With the two
+scans, the states being tested depend on the variable shift.
+Section~\ref{sec:comparison} proves many-one completeness for the
+concrete indexed seed and reader (\decl{OrbitHardness.concrete_indexed}).

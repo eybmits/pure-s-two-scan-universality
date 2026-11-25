@@ -101,14 +101,26 @@ theorem every_hit {Y} [DecidableEq Y] (D : Term → Option Y) (e : Term)
       · rw [next] at hit
         exact combine_sound P unique _ _ _ (.inl ⟨parallelSound (n+1),parallelSound (n+1)⟩) hit
 
-theorem universal_strings :
-    ∃ (E : List Bool → List Bool → Term) (D : Term → Option (List Bool)) (a b : Nat),
-      Regular (fun t => ∃ y, D t = some y) ∧
-      (∀ p x, size (E p x) ≤ a + b*(p.length+x.length)) ∧
+open Prize UniversalS
+set_option linter.style.haveILetI false
+
+/-- Three copies of the structural seed and the majority reader for one finite
+    machine give correct outputs at every detection in the fixed serial sweep. -/
+theorem universal_witness :
+    ∃ (P : Type) (fp : FinStates P) (dp : DecidableEq P) (st : Inhabited P)
+      (M : @Turing.TM0.Machine Cell P st) (a b : Nat), letI := fp; letI := dp; letI := st
+      let E := encodeBits P
+      let D := readStrings M
+      let start := fun p x => triple (E p x) (E p x) (E p x)
+      Regular (fun t => ∃ y, read D t = some y) ∧
+      (∀ p x, size (start p x) ≤ a + b*(p.length+x.length)) ∧
       ∀ f : List Bool →. List Bool, Partrec f → ∃ p : List Bool, ∀ x y,
-        (∃ n t, t ∈ states (E p x) n ∧ D t = some y) ↔ y ∈ f x := by
-  obtain ⟨E,D,a,b,reg,cap,works⟩ := Prize.universal_strings
-  refine ⟨fun p x => triple (E p x) (E p x) (E p x),read D,2+3*a,3*b,regular_domain D reg,?_,?_⟩
+        (∃ n t, t ∈ states (start p x) n ∧ read D t = some y) ↔ y ∈ f x := by
+  obtain ⟨P,fp,dp,st,M,a,b,reg,_,_,cap,works⟩ := Certified.universality
+  letI := fp; letI := dp; letI := st
+  let E := encodeBits P
+  let D := readStrings M
+  refine ⟨P,fp,dp,st,M,2+3*a,3*b,regular_domain D reg,?_,?_⟩
   · intro p x
     have := cap p x
     simp only [triple,pack,size,Nat.mul_assoc]
@@ -125,9 +137,22 @@ theorem universal_strings :
       refine ⟨n,_,end_mem _ n,?_⟩
       simp only [triple,rounds_pack]
       change combine (D (rounds n (E p x))) (D (rounds n (E p x))) (D (rounds n (E p x))) = some y
+      change D (rounds n (E p x)) = some y at hit
       simp [hit,combine]
+
+/-- Existential interface obtained by forgetting the explicit witnesses. -/
+theorem universal_strings :
+    ∃ (E : List Bool → List Bool → Term) (D : Term → Option (List Bool)) (a b : Nat),
+      Regular (fun t => ∃ y, D t = some y) ∧
+      (∀ p x, size (E p x) ≤ a + b*(p.length+x.length)) ∧
+      ∀ f : List Bool →. List Bool, Partrec f → ∃ p : List Bool, ∀ x y,
+        (∃ n t, t ∈ states (E p x) n ∧ D t = some y) ↔ y ∈ f x := by
+  obtain ⟨P,fp,dp,st,M,a,b,reg,cap,graph⟩ := universal_witness
+  letI := fp; letI := dp; letI := st
+  exact ⟨fun p x => let e := encodeBits P p x; triple e e e,
+    read (readStrings M),a,b,reg,cap,graph⟩
 
 #print axioms regular_domain
 #print axioms every_hit
-#print axioms universal_strings
+#print axioms universal_witness
 end TwoScans.Majority

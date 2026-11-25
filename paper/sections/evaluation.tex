@@ -1,5 +1,5 @@
 \papersection{Encoding a computation history}\label{sec:history}
-An existence proof using Mathlib's universal evaluator supplies one tape machine with a finite transition table. We fix this table for all programs and inputs. The encoder is defined for any such table. We fold the tape at the origin into two tracks. Each row marks the head and its state. Each nonfinal cell record gives a cell, its neighbors and its proposed update. A word automaton checks the overlapping triples against the fixed table and requires a halted head in the last row.
+An existence proof using Mathlib's universal evaluator supplies one tape machine with a finite transition table. We fix its alphabet and table for all programs and inputs. The encoder uses the alphabet to write the seed. The observer uses the table to verify the recorded transitions. We fold the tape at the origin into two tracks. Each row marks the head and its state. Each nonfinal cell record gives a cell, its neighbors and its proposed update. A word automaton checks the overlapping triples against the fixed table and requires a halted head in the last row.
 
 Prefix each row with a separator $\#$ and concatenate the rows to form $C$. Form $N$ from the proposed successor rows in the same way. With $W$ sites per row including the separator, consistency requires $\dropop_W(C)=N$, where $\dropop_W$ deletes the first $W$ symbols. For two cells per row, the comparison is
 \[
@@ -9,6 +9,6 @@ Prefix each row with a separator $\#$ and concatenate the rows to form $C$. Form
  N &            & \#\,a^+\,b^+ & \#\,c^+\,d^+
 \end{array}\qquad (W=3).}
 \]
-Here $a^+$ is the update proposed by the record for $a$. The next row records $c$ in that cell. Section~\ref{sec:comparison} shows how the tree checks whether $a^+=c$.
+The record for $a$ predicts $a^+$. Even when this is the correct local update, a candidate may put a different symbol $c$ in the next row. Section~\ref{sec:comparison} shows how the two scans expose that mismatch.
 
 If $C$ has $r+1$ rows, $N$ has $r$ separators. For $r>0$, $N$ begins at a separator, so the shift removes exactly one row. Splitting the common suffix at its separators identifies each remaining row with the update of its predecessor. The local update preserves row length, so all these rows have equal width. For $r=0$ the initial row is already final and $N$ is empty. Any $W$ at least as large as the encoded row passes the shift test and gives that same final row.

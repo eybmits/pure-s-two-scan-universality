@@ -13,12 +13,28 @@ Lean 4.35.0 and Nanoda 0.4.19 check the same nine propositions. The allowed axio
 | Finite word attribute | `TwoScans.WordRead.Attr` | [formal/WordRead.lean:7](formal/WordRead.lean#L7) |
 | Binary program and input | `TwoScans.Prize.encodeBits` | [formal/Prize.lean:12](formal/Prize.lean#L12) |
 | Final string decoder | `TwoScans.Prize.readStrings` | [formal/Prize.lean:21](formal/Prize.lean#L21) |
+| Two-copy constructor | `SerialTableau.pack` | [formal/Serial.lean:111](formal/Serial.lean#L111) |
+| Two-copy snapshot reader | `TwoScans.SerialReadout.double` | [formal/SerialReadout.lean:71](formal/SerialReadout.lean#L71) |
+| First detection on a finite path prefix | `TwoScans.SerialReadout.readFirst` | [formal/SerialReadout.lean:87](formal/SerialReadout.lean#L87) |
+| Three-copy constructor | `TwoScans.Majority.triple` | [formal/Majority.lean:8](formal/Majority.lean#L8) |
+| Three-copy snapshot reader | `TwoScans.Majority.read` | [formal/Majority.lean:15](formal/Majority.lean#L15) |
+| Program-index encoder | `TwoScans.UniversalS.encodePost` | [formal/UniversalS.lean:24](formal/UniversalS.lean#L24) |
+| Program-index reporter | `TwoScans.UniversalS.readPost` | [formal/UniversalS.lean:27](formal/UniversalS.lean#L27) |
+| Indexed orbit hit | `TwoScans.OrbitHardness.Hit` | [formal/OrbitHardness.lean:11](formal/OrbitHardness.lean#L11) |
 | Sentinel string coding | `TwoScans.StringCoding.pack` | [formal/StringCoding.lean:13](formal/StringCoding.lean#L13) |
 | Natural-number partial recursiveness | `Nat.Partrec` | [Partrec.lean:157](https://github.com/leanprover-community/mathlib4/blob/56a005855ea17e0b0958f73ec801ae140b0a1679/Mathlib/Computability/Partrec.lean#L157) |
 | Partial recursiveness on encoded types | `Partrec` | [Partrec.lean:231](https://github.com/leanprover-community/mathlib4/blob/56a005855ea17e0b0958f73ec801ae140b0a1679/Mathlib/Computability/Partrec.lean#L231) |
 | Program codes | `Nat.Partrec.Code` | [PartrecCode.lean:75](https://github.com/leanprover-community/mathlib4/blob/56a005855ea17e0b0958f73ec801ae140b0a1679/Mathlib/Computability/PartrecCode.lean#L75) |
 | Universal program evaluation | `Nat.Partrec.Code.eval` | [PartrecCode.lean:459](https://github.com/leanprover-community/mathlib4/blob/56a005855ea17e0b0958f73ec801ae140b0a1679/Mathlib/Computability/PartrecCode.lean#L459) |
 | Codes for partial recursive functions | `Nat.Partrec.Code.exists_code` | [PartrecCode.lean:531](https://github.com/leanprover-community/mathlib4/blob/56a005855ea17e0b0958f73ec801ae140b0a1679/Mathlib/Computability/PartrecCode.lean#L531) |
+
+## Reading the statements
+
+In `Certified.universality`, the finite machine is chosen before the function. Its `encodeBits` seed and `readStrings` decoder appear in the statement. Only the program string depends on the function, and the same program works for every input.
+
+`Prize.serial_universal_witness` names the seed with two copies and the reader `double`. It gives a regular per-snapshot test for each regular output property. Its input–output guarantee uses the first detection on the serialized sweep. `Majority.universal_witness` names the three-copy seed and the reader `Majority.read`. Every detection on that sweep gives the right output. Its detector has a regular domain. The majority decoder compares strings.
+
+`OrbitHardness.concrete_indexed` fixes the seed as `encodePost` and accepts precisely when `readPost` returns an output. It proves many-one completeness on program-index and numerical-input pairs. The chronology result uses its own reader and an increasing sequence of observation times.
 
 ## Replay
 
@@ -29,7 +45,7 @@ lake --quiet build && lake env lean verification/Endpoints.lean && lake env pyth
 python3 check_external.py
 ```
 
-The binary-string two-cell example also runs alone with `python3 code/pure_s_two_cell.py`. [Exact commands and captured outputs](verification/commands.md) include the clean build and the demo. The SHA-256 of the exported environment is `2b9cbbf8ff25774b034353543e1ea30cbbcbb45a1b05cd5aafe610f995b1a516`. Verify the distributed ZIP from its directory with `shasum -a 256 -c pure-s-lean-proof.zip.sha256`; the release supplies this sidecar beside the ZIP because a digest of the complete ZIP includes every byte of this file. The outer package also supplies that digest in `verification/attachment-replay.txt`.
+The two-cell example also runs alone with `python3 code/pure_s_two_cell.py`. [Exact commands and captured outputs](verification/commands.md) include the build and the demo. Nanoda checked the reference export with SHA-256 `9e5554e323e2ca96052460c1572b0e86b611a107330c505807dccf11506ec57d`. From the directory containing the distributed ZIP and its sidecar, `shasum -a 256 -c pure-s-lean-proof.zip.sha256` checks the archive itself. The outer package also records the archive digest in `verification/attachment-replay.txt`.
 
 <details>
 <summary>All nine exact Lean types and their axiom reports (expand)</summary>
@@ -58,24 +74,39 @@ TwoScans.Certified.universality :
                           Option.some y) ↔
                       y ∈ f x
 'TwoScans.Certified.universality' depends on axioms: [propext, Classical.choice, Quot.sound]
-TwoScans.Prize.serial_universal_strings :
-  ∃ (E : List Bool → List Bool → TwoScans.Term) (D : TwoScans.Term → Option (List Bool)) (a : ℕ) (b : ℕ),
-    (TwoScans.Automata.Regular fun (t : TwoScans.Term) => ∃ (y : List Bool), D t = Option.some y) ∧
-      (∀ (p x : List Bool), TwoScans.size (E p x) ≤ a + b * (p.length + x.length)) ∧
-        ∀ (f : List Bool →. List Bool),
-          Partrec f →
-            ∃ (p : List Bool),
-              ∀ (x y : List Bool), (∃ (n : ℕ), TwoScans.SerialReadout.readFirst D (E p x) n = Option.some y) ↔ y ∈ f x
-'TwoScans.Prize.serial_universal_strings' depends on axioms: [propext, Classical.choice, Quot.sound]
-TwoScans.OrbitHardness.complete_indexed :
-  ∃ (E : TwoScans.UniversalS.Code → ℕ → TwoScans.Term) (O : TwoScans.Term → Prop),
+TwoScans.Prize.serial_universal_witness :
+  ∃ (P : Type) (fp : TwoScans.Automata.FinStates P) (dp : DecidableEq P) (st : Inhabited P) (M :
+    Turing.TM0.Machine TwoScans.UniversalS.Cell P) (a : ℕ) (b : ℕ),
+    have E := TwoScans.Prize.encodeBits P;
+    have D := TwoScans.Prize.readStrings M;
+    have start := fun (p x : List Bool) => SerialTableau.pack (E p x) (E p x);
+    (TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
+        ∃ (y : List Bool), TwoScans.SerialReadout.double D t = Option.some y) ∧
+      (∀ (q : List Bool → Bool),
+          TwoScans.WordRead.Attr q →
+            TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
+              ∃ (y : List Bool), TwoScans.SerialReadout.double D t = Option.some y ∧ q y = Bool.true) ∧
+        (∀ (p x : List Bool), TwoScans.size (start p x) ≤ a + b * (p.length + x.length)) ∧
+          ∀ (f : List Bool →. List Bool),
+            Partrec f →
+              ∃ (p : List Bool),
+                ∀ (x y : List Bool),
+                  (∃ (n : ℕ),
+                      TwoScans.SerialReadout.readFirst (TwoScans.SerialReadout.double D) (start p x) n =
+                        Option.some y) ↔
+                    y ∈ f x
+'TwoScans.Prize.serial_universal_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+TwoScans.OrbitHardness.concrete_indexed :
+  ∃ (P : Type) (fp : TwoScans.Automata.FinStates P) (dp : DecidableEq P) (st : Inhabited P) (M :
+    Turing.TM0.Machine TwoScans.UniversalS.Cell P),
+    have O := fun (t : TwoScans.Term) => ∃ (out : List Bool), TwoScans.UniversalS.readPost M t = Option.some out;
+    have ev := TwoScans.OrbitHardness.Hit (TwoScans.UniversalS.encodePost P) O;
     TwoScans.Automata.Regular O ∧
-      REPred (TwoScans.OrbitHardness.Hit E O) ∧
-        ¬ComputablePred (TwoScans.OrbitHardness.Hit E O) ∧
-          (∀ (r : ℕ → Prop), REPred r → r ≤₀ TwoScans.OrbitHardness.Hit E O) ∧
-            ∀ (c : TwoScans.UniversalS.Code) (x : ℕ),
-              TwoScans.OrbitHardness.Hit E O (c, x) ↔ (Nat.Partrec.Code.eval c x).Dom
-'TwoScans.OrbitHardness.complete_indexed' depends on axioms: [propext, Classical.choice, Quot.sound]
+      REPred ev ∧
+        ¬ComputablePred ev ∧
+          (∀ (r : ℕ → Prop), REPred r → r ≤₀ ev) ∧
+            ∀ (c : TwoScans.UniversalS.Code) (x : ℕ), ev (c, x) ↔ (Nat.Partrec.Code.eval c x).Dom
+'TwoScans.OrbitHardness.concrete_indexed' depends on axioms: [propext, Classical.choice, Quot.sound]
 TwoScans.TraceReadout.regular_detection {Q Γ : Type} [DecidableEq Q] [DecidableEq Γ] [TwoScans.Automata.FinStates Q]
   [TwoScans.Automata.FinStates Γ] (δ : TwoScans.Tableau.OneTape.Table Q Γ) (blank : Γ) (accept : Q → Bool) :
   TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
@@ -126,28 +157,35 @@ TwoScans.Chronology.linear_seed {Q Γ : Type} [DecidableEq Q] [DecidableEq Γ] [
     ∀ (c : TwoScans.Tableau.OneTape.Cfg Q Γ),
       TwoScans.size (TwoScans.Chronology.seed blank c) ≤ a + b * (c.left.length + 1 + c.right.length)
 'TwoScans.Chronology.linear_seed' depends on axioms: [propext, Quot.sound]
-TwoScans.Majority.universal_strings :
-  ∃ (E : List Bool → List Bool → TwoScans.Term) (D : TwoScans.Term → Option (List Bool)) (a : ℕ) (b : ℕ),
-    (TwoScans.Automata.Regular fun (t : TwoScans.Term) => ∃ (y : List Bool), D t = Option.some y) ∧
-      (∀ (p x : List Bool), TwoScans.size (E p x) ≤ a + b * (p.length + x.length)) ∧
+TwoScans.Majority.universal_witness :
+  ∃ (P : Type) (fp : TwoScans.Automata.FinStates P) (dp : DecidableEq P) (st : Inhabited P) (M :
+    Turing.TM0.Machine TwoScans.UniversalS.Cell P) (a : ℕ) (b : ℕ),
+    have E := TwoScans.Prize.encodeBits P;
+    have D := TwoScans.Prize.readStrings M;
+    have start := fun (p x : List Bool) => TwoScans.Majority.triple (E p x) (E p x) (E p x);
+    (TwoScans.Automata.Regular fun (t : TwoScans.Term) =>
+        ∃ (y : List Bool), TwoScans.Majority.read D t = Option.some y) ∧
+      (∀ (p x : List Bool), TwoScans.size (start p x) ≤ a + b * (p.length + x.length)) ∧
         ∀ (f : List Bool →. List Bool),
           Partrec f →
             ∃ (p : List Bool),
               ∀ (x y : List Bool),
-                (∃ (n : ℕ), ∃ t ∈ TwoScans.SerialReadout.states (E p x) n, D t = Option.some y) ↔ y ∈ f x
-'TwoScans.Majority.universal_strings' depends on axioms: [propext, Classical.choice, Quot.sound]
+                (∃ (n : ℕ),
+                    ∃ t ∈ TwoScans.SerialReadout.states (start p x) n, TwoScans.Majority.read D t = Option.some y) ↔
+                  y ∈ f x
+'TwoScans.Majority.universal_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
 ```
 
 Source declarations in the same order:
 
 - [`TwoScans.Certified.universality`](formal/Certified.lean#L12)
-- [`TwoScans.Prize.serial_universal_strings`](formal/SerialOutput.lean#L10)
-- [`TwoScans.OrbitHardness.complete_indexed`](formal/OrbitHardness.lean#L57)
+- [`TwoScans.Prize.serial_universal_witness`](formal/SerialOutput.lean#L11)
+- [`TwoScans.OrbitHardness.concrete_indexed`](formal/OrbitHardness.lean#L25)
 - [`TwoScans.TraceReadout.regular_detection`](formal/TraceReadout.lean#L264)
 - [`TwoScans.TraceSelect.readAt_sound`](formal/TraceSelect.lean#L96)
 - [`TwoScans.TraceSelect.readAt_cofinal`](formal/TraceSelect.lean#L110)
 - [`TwoScans.Chronology.trajectory`](formal/Chronology.lean#L51)
 - [`TwoScans.Chronology.linear_seed`](formal/Chronology.lean#L89)
-- [`TwoScans.Majority.universal_strings`](formal/Majority.lean#L104)
+- [`TwoScans.Majority.universal_witness`](formal/Majority.lean#L109)
 
 </details>

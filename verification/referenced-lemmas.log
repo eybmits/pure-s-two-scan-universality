@@ -83,11 +83,35 @@ TwoScans.Tableau.all_successors {C : Type} {first last : List C} {after before :
 TwoScans.WordRead.Attr {α V : Type} (f : List α → V) : Prop
 TwoScans.Automata.Regular (P : TwoScans.Term → Prop) : Prop
 TwoScans.Frames.pi : TwoScans.Term → TwoScans.Term
-TwoScans.OrbitHardness.complete_indexed :
-  ∃ E O,
-    TwoScans.Automata.Regular O ∧
-      REPred (TwoScans.OrbitHardness.Hit E O) ∧
-        ¬ComputablePred (TwoScans.OrbitHardness.Hit E O) ∧
-          (∀ (r : ℕ → Prop), REPred r → r ≤₀ TwoScans.OrbitHardness.Hit E O) ∧
-            ∀ (c : TwoScans.UniversalS.Code) (x : ℕ),
-              TwoScans.OrbitHardness.Hit E O (c, x) ↔ (Nat.Partrec.Code.eval c x).Dom
+TwoScans.Prize.serial_universal_witness :
+  ∃ P fp dp st M a b,
+    have E := TwoScans.Prize.encodeBits P;
+    have D := TwoScans.Prize.readStrings M;
+    have start := fun p x => SerialTableau.pack (E p x) (E p x);
+    (TwoScans.Automata.Regular fun t => ∃ y, TwoScans.SerialReadout.double D t = some y) ∧
+      (∀ (q : List Bool → Bool),
+          TwoScans.WordRead.Attr q →
+            TwoScans.Automata.Regular fun t => ∃ y, TwoScans.SerialReadout.double D t = some y ∧ q y = true) ∧
+        (∀ (p x : List Bool), TwoScans.size (start p x) ≤ a + b * (p.length + x.length)) ∧
+          ∀ (f : List Bool →. List Bool),
+            Partrec f →
+              ∃ p,
+                ∀ (x y : List Bool),
+                  (∃ n, TwoScans.SerialReadout.readFirst (TwoScans.SerialReadout.double D) (start p x) n = some y) ↔
+                    y ∈ f x
+TwoScans.Majority.universal_witness :
+  ∃ P fp dp st M a b,
+    have E := TwoScans.Prize.encodeBits P;
+    have D := TwoScans.Prize.readStrings M;
+    have start := fun p x => TwoScans.Majority.triple (E p x) (E p x) (E p x);
+    (TwoScans.Automata.Regular fun t => ∃ y, TwoScans.Majority.read D t = some y) ∧
+      (∀ (p x : List Bool), TwoScans.size (start p x) ≤ a + b * (p.length + x.length)) ∧
+        ∀ (f : List Bool →. List Bool),
+          Partrec f →
+            ∃ p,
+              ∀ (x y : List Bool),
+                (∃ n, ∃ t ∈ TwoScans.SerialReadout.states (start p x) n, TwoScans.Majority.read D t = some y) ↔ y ∈ f x
+TwoScans.Generation.everyExtension {q u : TwoScans.Term} (hq : TwoScans.Frames.nf q = true)
+  (hu : TwoScans.Frames.nf u = true) (initial extra : List Bool) :
+  TwoScans.Generation.Visible (TwoScans.Generation.gen q u ⋆ TwoScans.Frames.word (TwoScans.Generation.gen q u) initial)
+    (q ⋆ TwoScans.Frames.word (TwoScans.Generation.gen q u) (extra ++ initial))

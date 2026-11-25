@@ -16,6 +16,8 @@ jobs:
       MATHLIB_NO_CACHE_ON_UPDATE: 1
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verify submission file checksums
+        run: sha256sum --check SHA256SUMS
       - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee # v1
         with:
           auto-config: false
@@ -32,6 +34,8 @@ jobs:
           Mathlib.Computability.TuringMachine.ToPartrec
           Mathlib.Data.Fintype.EquivFin
       - name: Rebuild and replay the release proofs
-        run: lake env python3 verify.py --fresh
+        run: lake env python3 verify.py --fresh --examples
       - name: Check the theorem exports with Nanoda
         run: python3 check_external.py
+      - name: Check the statements cited by the paper
+        run: lake env lean verification/ReferencedLemmas.lean

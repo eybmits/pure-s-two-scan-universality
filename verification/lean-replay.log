@@ -77,19 +77,19 @@ Building TraceSelect
 TwoScans.TraceSelect.readAt_sound axioms: Classical.choice, Quot.sound, propext
 TwoScans.TraceSelect.readAt_cofinal axioms: Classical.choice, Quot.sound, propext
 Building OrbitHardness
-TwoScans.OrbitHardness.complete_indexed axioms: Classical.choice, Quot.sound, propext
+TwoScans.OrbitHardness.concrete_indexed axioms: Classical.choice, Quot.sound, propext
 Building OutputPreimage
 Building Prize
 Building ReadPostBound
 Building Chronology
 TwoScans.Chronology.trajectory axioms: Classical.choice, Quot.sound, propext
 TwoScans.Chronology.linear_seed axioms: Quot.sound, propext
-Building SerialOutput
-TwoScans.Prize.serial_universal_strings axioms: Classical.choice, Quot.sound, propext
 Building Certified
 TwoScans.Certified.universality axioms: Classical.choice, Quot.sound, propext
+Building SerialOutput
+TwoScans.Prize.serial_universal_witness axioms: Classical.choice, Quot.sound, propext
 Building Majority
-TwoScans.Majority.universal_strings axioms: Classical.choice, Quot.sound, propext
+TwoScans.Majority.universal_witness axioms: Classical.choice, Quot.sound, propext
 Kernel replay Anchors
 Kernel replay UniversalPost
 Kernel replay WordBlocks
@@ -168,8 +168,8 @@ Kernel replay OutputPreimage
 Kernel replay Prize
 Kernel replay ReadPostBound
 Kernel replay Chronology
-Kernel replay SerialOutput
 Kernel replay Certified
+Kernel replay SerialOutput
 Kernel replay Majority
 Fresh transitive kernel replay of Certified.
 replaying Certified with --fresh
@@ -177,4 +177,8 @@ Fresh transitive kernel replay of Chronology.
 replaying Chronology with --fresh
 Fresh transitive kernel replay of Majority.
 replaying Majority with --fresh
+Fresh transitive kernel replay of SerialOutput.
+replaying SerialOutput with --fresh
+Fresh transitive kernel replay of OrbitHardness.
+replaying OrbitHardness with --fresh
 PASS: 81 source modules compiled and replayed; 9 endpoints checked.

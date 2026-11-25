@@ -7,7 +7,7 @@ Nanoda 0.4.19
 
 Lean rebuilt all 81 local modules from source in an empty build directory.
 Lean's kernel replayed each local module. The complete import closure of
-Certified, Chronology and Majority was then replayed separately, each from an
+Certified, Chronology, Majority, SerialOutput and OrbitHardness was checked separately, each from an
 empty kernel environment. See verification/lean-replay.log.
 
 Nine declarations were checked by both Lean and Nanoda. Lean's named
@@ -15,20 +15,20 @@ axiom reports use only propext, Classical.choice and Quot.sound. The
 linear_seed report contains just propext and Quot.sound.
 
 TwoScans.Certified.universality
-TwoScans.Prize.serial_universal_strings
-TwoScans.OrbitHardness.complete_indexed
+TwoScans.Prize.serial_universal_witness
+TwoScans.OrbitHardness.concrete_indexed
 TwoScans.TraceReadout.regular_detection
 TwoScans.TraceSelect.readAt_sound
 TwoScans.TraceSelect.readAt_cofinal
 TwoScans.Chronology.trajectory
 TwoScans.Chronology.linear_seed
-TwoScans.Majority.universal_strings
+TwoScans.Majority.universal_witness
 
 Nanoda independently checked the proof export and its dependencies. It
-returned all nine declarations and accepted 10,294 declarations with no
+returned all nine declarations and accepted 10,293 declarations with no
 errors. An axiom outside the three-name allowlist is a hard error.
-Proof export size: 60,986,138 bytes
-Proof export SHA-256: 2b9cbbf8ff25774b034353543e1ea30cbbcbb45a1b05cd5aafe610f995b1a516
+Proof export size: 61,084,710 bytes
+Proof export SHA-256: 9e5554e323e2ca96052460c1572b0e86b611a107330c505807dccf11506ec57d
 See verification/nanoda.log.
 
 All six supplementary Python programs completed. Their output is in

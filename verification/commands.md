@@ -10,4 +10,4 @@ The release uses Lean 4.35.0, the Mathlib commit in `lake-manifest.json` and Nan
 | `python3 check_external.py` | [Independent Nanoda replay and export digest](nanoda.log) |
 | `python3 code/pure_s_two_cell.py` | [Standalone two-cell run](two-cell.log) |
 
-Each command exited with status zero. The Lake build log includes elapsed times and scheduling-dependent message order. On a repeat run those details can differ. The expected Nanoda digest, names, axioms and example results are recorded above.
+Each command exited with status zero. The fresh kernel pass covers the import closures of `Certified`, `Chronology`, `Majority`, `SerialOutput` and `OrbitHardness`. The Lake log includes elapsed times and scheduling-dependent message order. The Nanoda log gives the digest of the reference export and the names the checker returned. The endpoint transcript gives the exact propositions and their axiom reports.
