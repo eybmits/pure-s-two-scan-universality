@@ -1,12 +1,12 @@
-Subject: A second solution to the Wolfram S Combinator Challenge
+Subject: Direct simulation by the S combinator — companion manuscript
 
 Dear Members of the S Combinator Challenge Committee,
 
-Please consider my manuscript “Direct Simulation of Turing Machines by Parallel Innermost S-Reduction” as a second solution to the challenge. My earlier manuscript, “Universal Computation with the S Combinator under Parallel Innermost Reduction,” established input–output universality by generating and checking candidate computation histories.
+Please consider “Direct Simulation of Turing Machines by Parallel Innermost S-Reduction” for the Wolfram S Combinator Challenge. It complements my earlier manuscript, “Universal Computation with the S Combinator under Parallel Innermost Reduction.” The earlier construction generates and checks candidate computation histories. This manuscript gives a direct simulation along a fixed deterministic evaluation path.
 
-This paper addresses a stricter reading of universality along a deterministic path. Under the same fixed parallel innermost strategy, S-reduction itself produces each successive configuration of a universal Turing machine inside the subtree encoding its predecessor. A fixed finite-state reader locates these configurations in order, even on infinite runs.
+The initial S-term stores the transition table. At each simulated step, parallel innermost reduction distributes the current tape environment through the directory and constructs the next configuration inside the call that encoded its predecessor. A fixed finite-state reader uses two descriptor tags to follow the corresponding entry. The same reader works for every table over the fixed alphabets. It locates the successive configurations, even on infinite runs, reports nothing between checkpoints, and never influences which redexes are contracted.
 
-The proof was checked with Lean and Nanoda. I directed the research. OpenAI Codex assisted extensively with proof development, formalization, testing and writing.
+The accompanying archive contains the Lean sources, the Nanoda verification record, a runnable example and the earlier manuscript (version 1.2.0). I directed the research. OpenAI Codex assisted extensively with proof development, formalization, testing and writing.
 
 Sincerely,
 Markus Baumann

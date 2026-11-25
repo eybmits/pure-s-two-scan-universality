@@ -10,8 +10,8 @@ The [complete submission ZIP](direct-emulation/Direct_S_Emulation_Submission.zip
 
 | File | Contents |
 | --- | --- |
-| [Manuscript](direct-emulation/Direct_S_Emulation.pdf) | Six-page paper with the construction and proof outline. |
-| [Proof archive](direct-emulation/Direct_S_Emulation_Proof.zip) | Lean and LaTeX sources, verification logs, replay instructions and a runnable example. |
+| [Manuscript](direct-emulation/Direct_S_Emulation.pdf) | Six-page paper and a one-page appendix proving how the reader locates each checkpoint. |
+| [Proof archive](direct-emulation/Direct_S_Emulation_Proof.zip) | Lean and LaTeX sources, verification logs, runnable example, size measurements and the earlier two-scan paper. |
 | [Cover letter](direct-emulation/Submission.txt) | Submission statement and relation to the earlier paper. |
 
 To see three machine steps, run these commands from the repository root with Python 3.10 or later.
