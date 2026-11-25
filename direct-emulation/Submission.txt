@@ -1,0 +1,15 @@
+Subject: A second solution to the Wolfram S Combinator Challenge
+
+Dear Members of the S Combinator Challenge Committee,
+
+Please consider my manuscript “Direct Simulation of Turing Machines by Parallel Innermost S-Reduction” as a second solution to the challenge. My earlier manuscript, “Universal Computation with the S Combinator under Parallel Innermost Reduction,” established input–output universality by generating and checking candidate computation histories.
+
+This paper addresses a stricter reading of universality along a deterministic path. Under the same fixed parallel innermost strategy, S-reduction itself produces each successive configuration of a universal Turing machine inside the subtree encoding its predecessor. A fixed finite-state reader locates these configurations in order, even on infinite runs.
+
+The proof was checked with Lean and Nanoda. I directed the research. OpenAI Codex assisted extensively with proof development, formalization, testing and writing.
+
+Sincerely,
+Markus Baumann
+Chair of Mobile and Distributed Systems, Department of Computer Science
+Ludwig-Maximilians-Universität München
+markus.baumann@ifi.lmu.de
